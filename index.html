@@ -3,179 +3,75 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Epic Little War - Step 1</title>
+<title>Pocket War Online</title>
 <style>
-*{box-sizing:border-box}
-html,body{margin:0;width:100%;height:100%;overflow:hidden;font-family:Arial,Helvetica,sans-serif}
-body{
-  background:
-    radial-gradient(circle at 20% 15%,rgba(255,255,255,.16),transparent 25%),
-    radial-gradient(circle at 80% 70%,rgba(0,0,0,.15),transparent 35%),
-    linear-gradient(145deg,#65b6a8,#319080 48%,#236c66);
-  color:#fff;position:relative;
-}
-body:before{
-  content:"";position:absolute;inset:0;opacity:.16;
-  background:
-    linear-gradient(30deg,#fff 12%,transparent 12.5%,transparent 87%,#fff 87.5%,#fff),
-    linear-gradient(150deg,#fff 12%,transparent 12.5%,transparent 87%,#fff 87.5%,#fff);
-  background-size:48px 28px,48px 28px;background-position:0 0,24px 14px;
-}
-
-/* decorative battlefield background */
-.island{
-  position:absolute;width:210px;height:110px;border-radius:48% 52% 45% 55%;
-  background:linear-gradient(#77b85d,#3c713d);
-  box-shadow:0 18px 0 #214d43,0 25px 30px #073d3980;
-  transform:rotate(-8deg);
-}
-.island:before,.island:after{
-  content:"";position:absolute;border-radius:50%;background:#2f6639;
-}
-.island:before{width:28px;height:42px;left:35px;top:18px;box-shadow:70px 15px 0 #397443,120px -4px 0 #285d34}
-.island:after{width:16px;height:16px;right:35px;bottom:22px;background:#8d8a62}
-.i1{right:-55px;top:160px}.i2{left:-95px;bottom:110px;transform:rotate(13deg) scale(.8)}
-.i3{right:-90px;bottom:-10px;transform:rotate(-18deg) scale(.65)}
-
-.plane{
-  position:absolute;right:10px;top:145px;width:85px;height:24px;
-  background:#416ca0;border-radius:50% 45% 40% 35%;transform:rotate(-28deg);
-  box-shadow:0 5px 0 #23456e;
-}
-.plane:before{content:"";position:absolute;width:55px;height:10px;left:12px;top:-7px;background:#294d77;transform:rotate(8deg);border-radius:50%}
-.plane:after{content:"";position:absolute;width:20px;height:6px;right:-12px;top:5px;background:#d9e5e9;border-radius:5px;box-shadow:10px 0 0 #d9e5e9}
-
-.menu{
-  position:absolute;left:50%;top:52%;transform:translate(-50%,-50%);
-  width:min(900px,92vw);height:min(520px,70vh);min-height:360px;
-  background:linear-gradient(180deg,#182b28ee,#091613f5);
-  border:4px solid #d62932;border-radius:14px;
-  box-shadow:0 0 0 2px #5c1015,inset 0 0 0 2px #07100f,0 18px 50px #0009;
-  padding:42px 18px 18px;
-}
-.heading{
-  position:absolute;left:50%;top:-38px;transform:translateX(-50%);
-  width:440px;max-width:72%;padding:14px 20px;text-align:center;
-  color:#fff;font-size:28px;font-weight:900;letter-spacing:.5px;
-  text-shadow:0 3px 2px #000;
-  background:linear-gradient(#171313,#050505);
-  border:3px solid #f0a72d;border-radius:20px;
-  box-shadow:0 0 0 2px #65130f,0 6px 15px #0009;
-}
-.version{position:absolute;left:2px;top:-28px;color:#fff;font-size:13px;font-weight:900}
-
-.content{width:100%;height:100%;display:grid;grid-template-columns:1.08fr 1fr;gap:14px}
-.preview{
-  border:3px solid #091311;border-radius:12px;position:relative;overflow:hidden;
-  background:
-    radial-gradient(circle at 50% 38%,#243a36,#07100e 72%);
-  box-shadow:inset 0 0 25px #000;
-}
-.preview:after{content:"";position:absolute;inset:0;box-shadow:inset 0 0 35px #000;pointer-events:none}
-.game-title{
-  position:absolute;left:50%;top:20px;transform:translateX(-50%);
-  font-size:30px;font-weight:900;white-space:nowrap;text-shadow:0 4px 2px #000;z-index:3;
-}
-
-/* CSS cartoon commander */
-.commander{
-  position:absolute;left:50%;top:55%;width:185px;height:285px;
-  transform:translate(-50%,-50%);z-index:2;
-}
-.head{
-  position:absolute;left:48px;top:30px;width:88px;height:80px;
-  border-radius:48% 48% 44% 44%;background:#e7c39f;border:3px solid #8e684e;
-}
-.face-shadow{position:absolute;left:67px;top:72px;width:48px;height:20px;border-radius:50%;background:#c99d7b55}
-.hair{
-  position:absolute;left:36px;top:8px;width:112px;height:37px;
-  border-radius:60px 60px 10px 10px;background:#d8d9d5;border:3px solid #5c5d5c;z-index:2;
-}
-.cap{
-  position:absolute;left:34px;top:-6px;width:118px;height:43px;
-  border-radius:55% 55% 20% 20%;background:linear-gradient(#2345c6,#12257e);
-  border:4px solid #e8c52d;z-index:3;
-}
-.cap:after{content:"";position:absolute;left:-12px;right:-12px;bottom:-8px;height:11px;background:#e2bd26;border-radius:50%}
-.eye{position:absolute;top:64px;width:9px;height:6px;background:#222;border-radius:50%;z-index:4}
-.eye.l{left:67px}.eye.r{left:103px}
-.mouth{position:absolute;left:76px;top:84px;width:34px;height:8px;border-bottom:4px solid #6e4635;border-radius:50%;z-index:4}
-.body{
-  position:absolute;left:35px;top:112px;width:118px;height:125px;
-  background:linear-gradient(90deg,#152d9d,#2d55df,#152b9b);
-  border-radius:22px 22px 16px 16px;border:4px solid #0b1b6e;
-  box-shadow:inset 10px 0 15px #ffffff18,inset -10px 0 15px #0004;
-}
-.collar{position:absolute;left:39px;top:5px;width:39px;height:25px;background:#edc53b;clip-path:polygon(0 0,100% 0,68% 100%,32% 100%)}
-.button{position:absolute;left:54px;top:39px;width:10px;height:10px;border-radius:50%;background:#edc53b;box-shadow:0 26px #edc53b,0 52px #edc53b}
-.arm{position:absolute;top:124px;width:42px;height:91px;background:linear-gradient(90deg,#142c9e,#3154db);border:4px solid #0b1b6e;border-radius:24px}
-.arm.l{left:12px;transform:rotate(8deg)}.arm.r{right:12px;transform:rotate(-8deg)}
-.hand{position:absolute;bottom:-13px;left:6px;width:32px;height:32px;border-radius:50%;background:#e7c39f;border:3px solid #8e684e}
-.arm.r .hand{left:auto;right:6px}
-.boot{position:absolute;top:226px;width:55px;height:45px;background:#17191d;border-radius:12px 12px 20px 20px;border:4px solid #08090a}
-.boot.l{left:42px}.boot.r{right:42px}
-
-.controls{display:flex;flex-direction:column;gap:13px}
-.spacer{flex:1}
-.bigbtn{
-  height:72px;border-radius:15px;border:3px solid #dfb82b;
-  background:linear-gradient(#172724,#07110f);color:#f7f7f7;
-  font-size:22px;font-weight:900;text-shadow:0 3px 2px #000;
-  box-shadow:inset 0 0 0 2px #29453e,0 4px 7px #0009;cursor:pointer;
-}
-.bigbtn:hover{filter:brightness(1.15)}
-.bigbtn:active{transform:translateY(2px)}
-.play{border-color:#d8b329;background:linear-gradient(#17351e,#0a1710)}
-.icon{display:inline-flex;width:42px;height:42px;margin-right:13px;vertical-align:middle;align-items:center;justify-content:center;font-size:27px}
-.version2{position:absolute;right:10px;bottom:8px;color:#aaa;font-size:11px}
-
-@media(max-width:650px){
-  .menu{width:92vw;height:68vh;min-height:390px;padding:34px 9px 9px}
-  .heading{font-size:20px;top:-30px;padding:10px 14px}
-  .content{gap:7px}
-  .game-title{font-size:20px;top:18px}
-  .bigbtn{height:58px;font-size:15px;border-radius:11px}
-  .icon{font-size:21px;width:30px;margin-right:5px}
-  .commander{transform:translate(-50%,-50%) scale(.70)}
-  .island{opacity:.7}
-}
+*{box-sizing:border-box}html,body{margin:0;background:#101815;color:#fff;font-family:Arial,sans-serif}
+body{min-height:100vh}.wrap{max-width:900px;margin:auto;padding:10px}.top{display:flex;gap:8px;align-items:center;justify-content:space-between;background:#17251f;border:1px solid #3a5147;border-radius:12px;padding:10px}.title{font-weight:900;letter-spacing:1px}.pill{padding:7px 10px;border-radius:8px;background:#263c32;font-size:12px}
+.menu{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}.panel{background:#17251f;border:1px solid #3a5147;border-radius:12px;padding:10px}.panel h3{margin:0 0 8px}.input{width:100%;padding:11px;border-radius:8px;border:1px solid #4c6258;background:#0d1512;color:white;font-size:16px}.btn{min-height:44px;border:2px solid #61756a;border-radius:9px;background:#243a31;color:#fff;font-weight:800;padding:9px 12px;cursor:pointer}.primary{border-color:#e5bd36;background:#49401d;color:#ffe98b}.danger{border-color:#a84a44;background:#442522}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}.hidden{display:none!important}
+.boardWrap{background:#0b1210;border:2px solid #40564d;border-radius:14px;padding:8px;overflow:auto}.board{position:relative;width:min(88vw,720px);height:min(88vw,720px);min-width:320px;min-height:320px;margin:auto;overflow:hidden;border-radius:10px;background:linear-gradient(145deg,#507b4e,#315c3e)}
+.tile{position:absolute;width:11.111%;height:11.111%;border:1px solid #ffffff18;background:#3d6c47;cursor:pointer}.tile:nth-child(odd){background:#416f49}.tile.water{background:#285d73}.tile.mountain{background:#586456}.tile.move{background:#6e9b4e;box-shadow:inset 0 0 0 3px #e4c33c}.tile.attack{background:#91443f;box-shadow:inset 0 0 0 3px #ff9b44}.tile.selected{outline:3px solid white;outline-offset:-3px}
+.decor{position:absolute;pointer-events:none;z-index:2}.tree{width:7%;height:7%;border-radius:50%;background:#214e30;border:3px solid #163b24;box-shadow:0 10px 0 -3px #61452b}.rock{width:6%;height:4%;background:#68716b;border:2px solid #444c47;border-radius:50%}
+.unit{position:absolute;width:11.111%;height:11.111%;z-index:5;display:flex;align-items:center;justify-content:center;cursor:pointer}.figure{position:relative}.inf{width:42%;height:58%;background:#316bd0;border:2px solid #152d55;border-radius:35% 35% 25% 25%}.red .inf{background:#c34340;border-color:#511a19}.inf:before{content:"";position:absolute;width:65%;height:32%;left:18%;top:-18%;background:#d5a17a;border:2px solid #704d38;border-radius:50%}.inf:after{content:"";position:absolute;width:85%;height:9%;right:-65%;top:45%;background:#222;border-radius:3px;transform:rotate(-10deg)}
+.tank{width:76%;height:48%;background:#2e66c6;border:3px solid #162c4b;border-radius:10px}.red .tank{background:#bd403e;border-color:#501918}.tank:before{content:"";position:absolute;width:40%;height:65%;left:30%;top:15%;background:#566d5f;border:2px solid #18221f;border-radius:50%}.tank:after{content:"";position:absolute;width:70%;height:9%;right:-58%;top:44%;background:#222;border-radius:3px}
+.art{width:68%;height:48%;background:#65715e;border:3px solid #242b27;border-radius:8px}.art:after{content:"";position:absolute;width:75%;height:9%;right:-60%;top:43%;background:#242a27;border-radius:3px}
+.hp{position:absolute;top:5%;width:78%;height:5px;background:#351b1b;border-radius:4px;overflow:hidden;z-index:2}.hp i{display:block;height:100%;background:#5ec16a}.label{position:absolute;bottom:2%;font-size:7px;font-weight:900;text-shadow:0 1px 3px #000}
+.hud{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}.card{background:#17251f;border:1px solid #3a5147;border-radius:10px;padding:9px}.small{font-size:12px;color:#b8c7c0;margin-top:4px}.bar{height:6px;background:#2d1919;border-radius:4px;overflow:hidden;margin-top:5px}.bar i{display:block;height:100%;background:#58bd64}.log{margin-top:8px;background:#0b1210;border:1px solid #30483e;border-radius:9px;padding:8px;font-size:12px;min-height:40px;max-height:100px;overflow:auto}
+@media(max-width:600px){.menu{grid-template-columns:1fr}.hud{grid-template-columns:1fr}.actions .btn{flex:1}}
 </style>
 </head>
 <body>
-<div class="island i1"></div><div class="island i2"></div><div class="island i3"></div><div class="plane"></div>
-
-<div class="menu">
-  <div class="version">(v1.0)</div>
-  <div class="heading">MAIN MENU</div>
-
-  <div class="content">
-    <div class="preview">
-      <div class="game-title">WAR GAME</div>
-
-      <div class="commander">
-        <div class="cap"></div><div class="hair"></div><div class="head"></div>
-        <div class="eye l"></div><div class="eye r"></div><div class="mouth"></div>
-        <div class="body"><div class="collar"></div><div class="button"></div></div>
-        <div class="arm l"><div class="hand"></div></div>
-        <div class="arm r"><div class="hand"></div></div>
-        <div class="boot l"></div><div class="boot r"></div>
-      </div>
-    </div>
-
-    <div class="controls">
-      <button class="bigbtn"><span class="icon">⚙️</span>HELP &amp; OPTIONS</button>
-      <div class="spacer"></div>
-      <button class="bigbtn"><span class="icon">📂</span>LOAD BATTLE</button>
-      <button class="bigbtn play" id="play"><span class="icon">▶</span>PLAY GAME</button>
-    </div>
-  </div>
-  <div class="version2">STEP 1 • MAIN MENU</div>
+<div class="wrap">
+<div class="top"><div class="title">⚔️ POCKET WAR ONLINE</div><div id="status" class="pill">OFFLINE</div></div>
+<div id="lobby" class="menu">
+  <div class="panel"><h3>Create room</h3><input id="room" class="input" maxlength="12" placeholder="Room code e.g. AZHAR1"><div class="actions"><button id="create" class="btn primary">CREATE</button></div></div>
+  <div class="panel"><h3>Join room</h3><input id="joinRoom" class="input" maxlength="12" placeholder="Room code"><div class="actions"><button id="join" class="btn">JOIN</button></div></div>
+  <div class="panel"><h3>Single player</h3><div class="small">Play against the built-in AI without a server.</div><div class="actions"><button id="ai" class="btn">PLAY AI</button></div></div>
+  <div class="panel"><h3>Online note</h3><div class="small">The included server.js is a separate original WebSocket server. Run it on a machine/server, then set SERVER below in this file.</div></div>
 </div>
 
+<div id="game" class="hidden">
+<div class="actions"><button id="end" class="btn primary">END TURN</button><button id="wait" class="btn">WAIT</button><button id="leave" class="btn danger">LEAVE</button></div>
+<div class="boardWrap"><div id="board" class="board"></div></div>
+<div class="hud">
+ <div class="card"><b id="selName">Select a unit</b><div id="selInfo" class="small">Blue units are yours.</div><div class="bar"><i id="selHp" style="width:0%"></i></div></div>
+ <div class="card"><b id="turn">YOUR TURN</b><div id="score" class="small">Blue 3 · Red 3</div><div id="objective" class="small">Destroy every enemy unit.</div></div>
+</div>
+<div id="log" class="log">Ready.</div>
+</div>
+</div>
 <script>
-document.getElementById("play").onclick=()=>{
-  alert("STEP 1 COMPLETE ✅\n\nNext: Battle Screen");
-};
+const SERVER="ws://YOUR_SERVER_HOST:8080";
+const N=9, board=document.getElementById("board");
+let mode="ai",ws=null,room="",side="blue",turn="blue",selected=null,units=[],over=false,aiTimer=null;
+const terrain=[
+[0,0,1,1,0,0,0,1,0],[0,2,2,0,0,1,0,0,0],[0,2,2,0,1,0,0,0,0],
+[0,0,0,0,0,0,1,0,0],[1,0,0,0,0,0,0,0,1],[0,0,1,0,0,0,0,2,2],
+[0,0,0,0,1,0,0,2,2],[1,0,0,0,0,1,0,0,0],[1,0,0,0,0,0,0,0,1]];
+const log=m=>document.getElementById("log").textContent=m;
+const at=(x,y)=>units.find(u=>u.hp>0&&u.x===x&&u.y===y);
+const dist=(a,b)=>Math.abs(a.x-b.x)+Math.abs(a.y-b.y);
+function reset(){units=[
+{id:1,t:"inf",team:"blue",x:0,y:7,hp:100,m:3,r:1},{id:2,t:"tank",team:"blue",x:1,y:8,hp:120,m:2,r:1},{id:3,t:"art",team:"blue",x:0,y:8,hp:85,m:2,r:3},
+{id:4,t:"inf",team:"red",x:8,y:1,hp:100,m:3,r:1},{id:5,t:"tank",team:"red",x:7,y:0,hp:120,m:2,r:1},{id:6,t:"art",team:"red",x:8,y:0,hp:85,m:2,r:3}];
+selected=null;turn="blue";side="blue";over=false;draw();log("Battle started. Select a blue unit.");}
+function openGame(){document.getElementById("lobby").classList.add("hidden");document.getElementById("game").classList.remove("hidden");reset();}
+function draw(){
+ board.innerHTML="";
+ for(let y=0;y<N;y++)for(let x=0;x<N;x++){let c=document.createElement("button");c.className="tile "+(terrain[y][x]===1?"mountain":terrain[y][x]===2?"water":"");c.style.left=(x*100/N)+"%";c.style.top=(y*100/N)+"%";c.onclick=()=>tap(x,y);if(selected&&selected.team===side&&turn===side){if(!at(x,y)&&terrain[y][x]===0&&dist(selected,{x,y})<=selected.m)c.classList.add("move");let v=at(x,y);if(v&&v.team!==side&&dist(selected,v)<=selected.r)c.classList.add("attack");}if(selected&&selected.x===x&&selected.y===y)c.classList.add("selected");board.appendChild(c);}
+ [[18,16],[78,18],[25,75],[83,72],[52,25],[8,45],[62,58]].forEach(p=>{let e=document.createElement("div");e.className="decor tree";e.style.left=p[0]+"%";e.style.top=p[1]+"%";board.appendChild(e)});
+ [[35,35],[70,62],[14,63],[88,43]].forEach(p=>{let e=document.createElement("div");e.className="decor rock";e.style.left=p[0]+"%";e.style.top=p[1]+"%";board.appendChild(e)});
+ units.filter(u=>u.hp>0).forEach(u=>{let e=document.createElement("div");e.className="unit "+u.team;e.style.left=(u.x*100/N)+"%";e.style.top=(u.y*100/N)+"%";let cls=u.t==="tank"?"tank":u.t==="art"?"art":"inf";e.innerHTML='<div class="hp"><i style="width:'+Math.max(0,u.hp/(u.t==="tank"?120:100)*100)+'%"></i></div><div class="figure '+cls+'"></div><span class="label">'+u.t.toUpperCase()+'</span>';e.onclick=()=>tap(u.x,u.y);board.appendChild(e)});
+ let b=units.filter(u=>u.team==="blue"&&u.hp>0).length,r=units.filter(u=>u.team==="red"&&u.hp>0).length;document.getElementById("score").textContent="Blue "+b+" · Red "+r;document.getElementById("turn").textContent=turn===side?"YOUR TURN":"OPPONENT TURN";
+ if(selected&&selected.hp>0){document.getElementById("selName").textContent=selected.t==="tank"?"🛡️ TANK":selected.t==="art"?"💥 ARTILLERY":"🪖 INFANTRY";document.getElementById("selInfo").textContent="HP "+selected.hp+" · Move "+selected.m+" · Range "+selected.r;document.getElementById("selHp").style.width=Math.max(0,selected.hp/(selected.t==="tank"?120:100)*100)+"%"}else{document.getElementById("selName").textContent="Select a unit";document.getElementById("selInfo").textContent="Blue units are yours.";document.getElementById("selHp").style.width="0%"}
+}
+function tap(x,y){if(over||turn!==side)return;let v=at(x,y);if(v&&v.team===side){selected=v;draw();return}if(!selected)return;if(v&&v.team!==side&&dist(selected,v)<=selected.r){attack(selected,v);return}if(!v&&terrain[y][x]===0&&dist(selected,{x,y})<=selected.m){selected.x=x;selected.y=y;log("Unit moved.");send();draw()}else log("That tile is blocked or out of range.");}
+function attack(a,v){let dmg=a.t==="tank"?34:a.t==="art"?27:22;v.hp=Math.max(0,v.hp-dmg);log((a.team===side?"Your ":"Enemy ")+a.t.toUpperCase()+" hit for "+dmg);selected=null;send();check();draw();}
+function endTurn(){if(over||turn!==side)return;selected=null;if(mode==="online"){turn=side==="blue"?"red":"blue";send();draw()}else{turn="red";draw();aiTurn()}}
+function aiTurn(){clearTimeout(aiTimer);aiTimer=setTimeout(()=>{let es=units.filter(u=>u.team==="red"&&u.hp>0),bs=units.filter(u=>u.team==="blue"&&u.hp>0);for(let e of es){let t=bs.filter(x=>x.hp>0).sort((a,b)=>dist(e,a)-dist(e,b))[0];if(!t)continue;if(dist(e,t)<=e.r){let old=side;side="red";attack(e,t);side=old}else{let opts=[];for(let y=0;y<N;y++)for(let x=0;x<N;x++)if(!at(x,y)&&terrain[y][x]===0&&dist(e,{x,y})<=e.m)opts.push({x,y});opts.sort((a,b)=>Math.abs(a.x-t.x)+Math.abs(a.y-t.y)-(Math.abs(b.x-t.x)+Math.abs(b.y-t.y)));if(opts[0]){e.x=opts[0].x;e.y=opts[0].y}}}if(!over){turn="blue";side="blue";log("Enemy finished. Your turn.");draw()}},550)}
+function check(){let b=units.some(u=>u.team==="blue"&&u.hp>0),r=units.some(u=>u.team==="red"&&u.hp>0);if(!b||!r){over=true;log(b?"🏆 VICTORY!":"💀 DEFEAT");}}
+function send(){if(mode==="online"&&ws&&ws.readyState===1)ws.send(JSON.stringify({type:"state",room,side,units,turn}))}
+function connect(join){let code=(join?document.getElementById("joinRoom").value:document.getElementById("room").value).trim().toUpperCase();if(!code)return alert("Enter a room code");if(SERVER.includes("YOUR_SERVER_HOST"))return alert("Set SERVER in index.html to your deployed server address first.");room=code;ws=new WebSocket(SERVER);ws.onopen=()=>{ws.send(JSON.stringify({type:join?"join":"create",room}));document.getElementById("status").textContent="ONLINE"};ws.onmessage=e=>{let m=JSON.parse(e.data);if(m.type==="assign"){side=m.side;openGame();}if(m.type==="state"&&m.side!==side){units=m.units;turn=m.turn;draw();}if(m.type==="info")log(m.text)};ws.onclose=()=>document.getElementById("status").textContent="OFFLINE";ws.onerror=()=>log("Server connection failed.")} 
+document.getElementById("ai").onclick=()=>{mode="ai";side="blue";openGame()};document.getElementById("create").onclick=()=>{mode="online";connect(false)};document.getElementById("join").onclick=()=>{mode="online";connect(true)};document.getElementById("end").onclick=endTurn;document.getElementById("wait").onclick=endTurn;document.getElementById("leave").onclick=()=>location.reload();
 </script>
 </body>
 </html>
