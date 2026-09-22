@@ -1,265 +1,171 @@
 <!doctype html>
-<html lang="en">
+<html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>Pocket War 3D</title>
 <style>
-*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#071017;font-family:Arial,sans-serif}
-#game{position:fixed;inset:0}canvas{display:block}
-#top{position:fixed;top:10px;left:10px;right:10px;display:flex;gap:8px;align-items:center;z-index:5;pointer-events:none}
-.panel{background:rgba(5,14,20,.86);border:1px solid #3b5862;border-radius:10px;color:#eaf5f7;box-shadow:0 5px 20px #0008}
-#title{padding:9px 12px;font-weight:800;letter-spacing:.8px}
-#turn{padding:9px 12px;font-weight:700}
-#status{margin-left:auto;padding:9px 12px;font-size:12px}
-#help{position:fixed;left:10px;bottom:10px;z-index:5;padding:10px 12px;font-size:12px;line-height:1.45;max-width:390px}
-#actions{position:fixed;right:10px;bottom:10px;z-index:5;display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}
-button{border:1px solid #526e78;background:#10222b;color:#fff;border-radius:8px;padding:10px 13px;font-weight:700}
-button:active{transform:translateY(1px)}button.primary{background:#075b83}
-#legend{position:fixed;top:62px;left:10px;z-index:5;padding:7px 10px;font-size:11px}
-.badge{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px}.blue{background:#28a9ff}.red{background:#ff4e54}
-#toast{position:fixed;top:105px;left:50%;transform:translateX(-50%);z-index:8;background:#08161de8;color:white;border:1px solid #5c7a84;border-radius:9px;padding:9px 13px;opacity:0;transition:.2s}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#061016;font-family:Arial,sans-serif}
+canvas{position:fixed;inset:0;width:100%;height:100%;touch-action:none}
+.ui{position:fixed;z-index:5;color:#eaf5f7;background:#07151cdd;border:1px solid #49636c;border-radius:10px;box-shadow:0 5px 20px #0008}
+#top{top:10px;left:10px;right:10px;display:flex;gap:8px;align-items:stretch}
+.box{padding:10px 12px;font-weight:700}
+#title{font-size:16px;letter-spacing:.5px}#turn{min-width:150px}#status{margin-left:auto;font-size:13px}
+#help{left:10px;bottom:10px;padding:9px 11px;font-size:11px;line-height:1.4;max-width:370px}
+#buttons{right:10px;bottom:10px;display:flex;gap:7px;background:transparent;border:0;box-shadow:none}
+button{padding:10px 13px;border-radius:9px;border:1px solid #57717a;background:#10232b;color:white;font-weight:700}
+button.primary{background:#07608b}
+#toast{left:50%;top:105px;transform:translateX(-50%);padding:9px 13px;opacity:0;transition:.2s}
 #toast.show{opacity:1}
+@media(max-width:600px){#top{gap:5px}.box{padding:8px;font-size:12px}#title{max-width:130px}#turn{min-width:110px}#status{max-width:90px;overflow:hidden}#help{bottom:65px;font-size:10px;max-width:330px}}
 </style>
 </head>
 <body>
-<div id="game"></div>
-<div id="top">
-  <div id="title" class="panel">⚔ POCKET WAR 3D</div>
-  <div id="turn" class="panel">BLUE • YOUR TURN</div>
-  <div id="status" class="panel">Select a unit</div>
+<canvas id="c"></canvas>
+<div id="top" class="ui">
+ <div id="title" class="box">⚔ POCKET WAR 3D</div>
+ <div id="turn" class="box">🔵 BLUE • YOUR TURN</div>
+ <div id="status" class="box">Select a unit</div>
 </div>
-<div id="legend" class="panel"><span class="badge blue"></span>BLUE &nbsp; <span class="badge red"></span>RED</div>
-<div id="help" class="panel">
-<b>3D controls</b><br>
-Drag = rotate camera • Pinch/wheel = zoom • Right drag = pan<br>
-Select a unit, then tap a highlighted tile to move. Tap an enemy in range to attack.
+<div id="help" class="ui"><b>3D BATTLEFIELD</b><br>Drag to rotate • Pinch / wheel to zoom<br>Select a unit → tap a highlighted position to move • tap enemy to attack</div>
+<div id="buttons">
+ <button id="center">Center</button><button id="end" class="primary">End Turn</button><button id="reset">Reset</button>
 </div>
-<div id="actions">
-  <button id="centerBtn">Center</button>
-  <button id="endBtn" class="primary">End Turn</button>
-  <button id="resetBtn">Reset</button>
-</div>
-<div id="toast"></div>
+<div id="toast" class="ui"></div>
 
-<script type="module">
-import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js";
-import {OrbitControls} from "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/controls/OrbitControls.js";
+<script>
+const canvas=document.getElementById('c'),ctx=canvas.getContext('2d');
+let W=innerWidth,H=innerHeight,D=devicePixelRatio||1;
+function resize(){W=innerWidth;H=innerHeight;D=Math.min(devicePixelRatio||1,2);canvas.width=W*D;canvas.height=H*D;ctx.setTransform(D,0,0,D,0,0)}resize();addEventListener('resize',resize);
 
-const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x071017);
-scene.fog = new THREE.Fog(0x071017, 28, 58);
+const N=12, tile=2;
+let yaw=-.62, pitch=.92, zoom=1, panX=0,panY=30;
+let selected=null,turn='blue',gameOver=false,drag=false,lastX=0,lastY=0,moved=false;
 
-const camera = new THREE.PerspectiveCamera(48, innerWidth/innerHeight, .1, 200);
-camera.position.set(13,16,18);
+const units=[
+ {team:'blue',type:'infantry',x:1,z:10,hp:100},
+ {team:'blue',type:'tank',x:2,z:10,hp:100},
+ {team:'blue',type:'infantry',x:1,z:9,hp:100},
+ {team:'red',type:'infantry',x:10,z:1,hp:100},
+ {team:'red',type:'tank',x:9,z:1,hp:100},
+ {team:'red',type:'infantry',x:10,z:2,hp:100}
+];
+const blocked=new Set(['3,3','8,7','5,5','2,4','9,3','9,8','3,8']);
+const trees=new Set(['1,1','2,2','10,2','9,9','2,9','10,10','4,2','8,9']);
+const water=new Set(); for(let z=5;z<=6;z++)for(let x=0;x<N;x++)water.add(x+','+z);
+for(let x=4;x<8;x++){water.delete(x+',5');water.delete(x+',6')}
 
-const renderer = new THREE.WebGLRenderer({antialias:true});
-renderer.setPixelRatio(Math.min(devicePixelRatio,2));
-renderer.setSize(innerWidth,innerHeight);
-renderer.shadowMap.enabled=true;
-renderer.shadowMap.type=THREE.PCFSoftShadowMap;
-document.getElementById("game").appendChild(renderer.domElement);
-
-const controls = new OrbitControls(camera,renderer.domElement);
-controls.target.set(0,0,0);
-controls.enableDamping=true;
-controls.dampingFactor=.07;
-controls.minDistance=9; controls.maxDistance=34;
-controls.maxPolarAngle=Math.PI/2.18;
-
-scene.add(new THREE.HemisphereLight(0xb9d9e7,0x1c2a16,2.0));
-const sun=new THREE.DirectionalLight(0xffffff,3.0);
-sun.position.set(-10,22,8); sun.castShadow=true;
-sun.shadow.mapSize.set(2048,2048);
-scene.add(sun);
-
-const boardSize=12, tile=2;
-const terrain=new THREE.Group(); scene.add(terrain);
-const cells=new Map(), units=[];
-let selected=null, turn="blue", gameOver=false;
-
-function key(x,z){return x+","+z}
-function world(x,z){return new THREE.Vector3((x-(boardSize-1)/2)*tile,0,(z-(boardSize-1)/2)*tile)}
-function mat(c,rough=.9){return new THREE.MeshStandardMaterial({color:c,roughness:rough})}
-
-const grass=[0x2f5e38,0x3d7040,0x456f3c,0x315b39];
-for(let z=0;z<boardSize;z++) for(let x=0;x<boardSize;x++){
-  let h=.12;
-  if((x===3&&z===3)||(x===8&&z===7)||(x===5&&z===5)) h=.5;
-  const p=world(x,z);
-  const m=new THREE.Mesh(new THREE.BoxGeometry(tile-.035,h,tile-.035),mat(grass[(x*7+z*3)%grass.length]));
-  m.position.set(p.x,h/2,p.z); m.receiveShadow=true; terrain.add(m);
-  cells.set(key(x,z),{x,z,mesh:m,blocked:false,unit:null});
+function iso(x,y,z){
+ const X=(x-(N-1)/2)*tile, Z=(z-(N-1)/2)*tile;
+ const cy=Math.cos(yaw),sy=Math.sin(yaw);
+ const rx=X*cy-Z*sy, rz=X*sy+Z*cy;
+ const cp=Math.cos(pitch),sp=Math.sin(pitch);
+ const sx=rx, sy2=rz*cp-y*sp, depth=rz*sp+y*cp;
+ const scale=52*zoom;
+ return {x:W/2+sx*scale+panX,y:H*.52-sy2*scale+panY,depth};
 }
-
-// water strip
-for(let z=0;z<boardSize;z++){
-  if(z===5||z===6){
-    for(let x=0;x<boardSize;x++){
-      const c=cells.get(key(x,z)); c.blocked=true;
-      const p=world(x,z);
-      const w=new THREE.Mesh(new THREE.BoxGeometry(tile-.02,.16,tile-.02),mat(0x17556b,.45));
-      w.position.set(p.x,.18,p.z); w.receiveShadow=true; terrain.add(w);
-    }
-  }
+function poly(points,fill,stroke){
+ ctx.beginPath();points.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.closePath();
+ ctx.fillStyle=fill;ctx.fill();if(stroke){ctx.strokeStyle=stroke;ctx.stroke()}
 }
-// bridge
-for(let x=4;x<8;x++){
-  const c=cells.get(key(x,5)); c.blocked=false;
-  const p=world(x,5);
-  const b=new THREE.Mesh(new THREE.BoxGeometry(tile-.08,.28,tile-.08),mat(0x76583c));
-  b.position.set(p.x,.3,p.z); b.castShadow=b.receiveShadow=true; terrain.add(b);
+function tileTop(x,z,y=0){
+ const a=iso(x-.98,y,z-.98),b=iso(x+.98,y,z-.98),c=iso(x+.98,y,z+.98),d=iso(x-.98,y,z+.98);
+ poly([a,b,c,d], water.has(x+','+z)?'#16566b':((x+z)%3?'#3d7040':'#345f38'),'#203e32');
 }
-
-// rocks / trees
+function box(x,z,w,d,h,color){
+ const p=iso(x,0,z),a=iso(x-w/2,0,z-d/2),b=iso(x+w/2,0,z-d/2),c=iso(x+w/2,0,z+d/2),q=iso(x-w/2,0,z+d/2);
+ const ah=iso(x-w/2,h,z-d/2),bh=iso(x+w/2,h,z-d/2),ch=iso(x+w/2,h,z+d/2),qh=iso(x-w/2,h,z+d/2);
+ poly([ah,bh,ch,qh],color);
+ poly([qh,ch,c,q],'#263e29');poly([bh,ch,c,b],'#315b37');
+}
 function tree(x,z){
- const c=cells.get(key(x,z)); if(!c||c.blocked)return;
- const p=world(x,z), g=new THREE.Group(); g.position.set(p.x,0,p.z);
- const trunk=new THREE.Mesh(new THREE.CylinderGeometry(.18,.25,.9,7),mat(0x5a3925)); trunk.position.y=.55;
- const crown=new THREE.Mesh(new THREE.ConeGeometry(.75,1.8,8),mat(0x183d25)); crown.position.y=1.8;
- trunk.castShadow=crown.castShadow=true; g.add(trunk,crown); terrain.add(g); c.blocked=true;
+ const p=iso(x,0,z),t=iso(x,.9,z),c=iso(x,2.3,z);
+ ctx.strokeStyle='#5b3b25';ctx.lineWidth=10;ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(t.x,t.y);ctx.stroke();
+ ctx.fillStyle='#173d26';ctx.beginPath();ctx.arc(c.x,c.y,24,0,Math.PI*2);ctx.fill();
+ ctx.fillStyle='#255a31';ctx.beginPath();ctx.arc(c.x-8,c.y-7,17,0,Math.PI*2);ctx.fill();
 }
-[[1,1],[2,2],[10,2],[9,9],[2,9],[10,10],[4,2],[8,9]].forEach(a=>tree(...a));
-
-function building(x,z,color=0x6f6a5c){
- const c=cells.get(key(x,z)); if(!c||c.blocked)return;
- const p=world(x,z), g=new THREE.Group(); g.position.set(p.x,0,p.z);
- const body=new THREE.Mesh(new THREE.BoxGeometry(1.25,1.05,1.25),mat(color)); body.position.y=.55;
- const roof=new THREE.Mesh(new THREE.ConeGeometry(.95,.75,4),mat(0x3b3b38)); roof.rotation.y=Math.PI/4; roof.position.y=1.45;
- body.castShadow=roof.castShadow=true; g.add(body,roof); terrain.add(g); c.blocked=true;
+function building(x,z){
+ box(x,z,1.35,1.35,1.1,'#77705f');
+ const p=iso(x,1.1,z);ctx.fillStyle='#383a37';ctx.beginPath();
+ ctx.moveTo(p.x,p.y-24);ctx.lineTo(p.x+30,p.y-8);ctx.lineTo(p.x,p.y+9);ctx.lineTo(p.x-30,p.y-8);ctx.closePath();ctx.fill();
 }
-building(2,4); building(9,3); building(9,8); building(3,8);
-
-function unitMesh(type,color){
- const g=new THREE.Group();
- const main=mat(color), dark=mat(color===0x1596e8?0x083c62:0x6d161b);
- if(type==="tank"){
-   const hull=new THREE.Mesh(new THREE.BoxGeometry(1.15,.45,.9),main); hull.position.y=.55;
-   const turret=new THREE.Mesh(new THREE.CylinderGeometry(.42,.42,.25,12),main); turret.position.y=.88;
-   const barrel=new THREE.Mesh(new THREE.CylinderGeometry(.09,.09,.85,10),dark); barrel.rotation.z=Math.PI/2; barrel.position.set(.43, .91, 0);
-   g.add(hull,turret,barrel);
+function unitDraw(u){
+ const p=iso(u.x,0,u.z);
+ const blue=u.team==='blue', main=blue?'#169bea':'#df3941', dark=blue?'#063c62':'#64151b';
+ if(u.type==='tank'){
+   box(u.x,u.z,.95,.75,.42,main);
+   const q=iso(u.x,.55,u.z);ctx.fillStyle=main;ctx.beginPath();ctx.ellipse(q.x,q.y,19,11,0,0,Math.PI*2);ctx.fill();
+   const r=iso(u.x+.48,.6,u.z);ctx.strokeStyle=dark;ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(q.x,q.y);ctx.lineTo(r.x,r.y);ctx.stroke();
  }else{
-   const body=new THREE.Mesh(new THREE.CylinderGeometry(.32,.38,.7,8),main); body.position.y=.65;
-   const head=new THREE.Mesh(new THREE.SphereGeometry(.28,12,8),dark); head.position.y=1.13;
-   const pack=new THREE.Mesh(new THREE.BoxGeometry(.38,.45,.18),dark); pack.position.set(0,.7,-.28);
-   g.add(body,head,pack);
+   const q=iso(u.x,.55,u.z);ctx.fillStyle=main;ctx.beginPath();ctx.ellipse(q.x,q.y,12,18,0,0,Math.PI*2);ctx.fill();
+   const h=iso(u.x,1.25,u.z);ctx.fillStyle=dark;ctx.beginPath();ctx.arc(h.x,h.y,8,0,Math.PI*2);ctx.fill();
  }
- g.traverse(o=>{if(o.isMesh)o.castShadow=true}); return g;
+ const hb=iso(u.x,1.65,u.z), ww=36;ctx.fillStyle='#111';ctx.fillRect(hb.x-ww/2,hb.y,ww,5);
+ ctx.fillStyle=u.hp>40?'#25d66d':'#ffb52e';ctx.fillRect(hb.x-ww/2,hb.y,ww*u.hp/100,5);
+ if(selected===u){ctx.strokeStyle='#ffe45b';ctx.lineWidth=3;ctx.beginPath();ctx.arc(p.x,p.y+2,24,0,Math.PI*2);ctx.stroke()}
 }
-
-function addUnit(team,type,x,z,hp=100){
- const c=cells.get(key(x,z)); if(!c||c.blocked||c.unit)return;
- const g=unitMesh(type,team==="blue"?0x1596e8:0xd52b35);
- const p=world(x,z); g.position.set(p.x,0,p.z);
- scene.add(g);
- const u={team,type,x,z,hp,maxHp:hp,mesh:g,acted:false};
- units.push(u); c.unit=u; addHealthBar(u); return u;
-}
-function addHealthBar(u){
- const group=new THREE.Group(); group.position.y=1.65;
- const bg=new THREE.Mesh(new THREE.PlaneGeometry(1.05,.13),mat(0x111111)); bg.position.z=.02;
- const fg=new THREE.Mesh(new THREE.PlaneGeometry(1,.09),mat(0x27d66d)); fg.position.z=0;
- group.add(bg,fg); u.bar=fg; u.mesh.add(group);
- group.lookAt(camera.position);
-}
-function updateBar(u){u.bar.scale.x=Math.max(0,u.hp/u.maxHp); u.bar.position.x=(u.hp/u.maxHp-1)*.5}
-function clearHighlights(){
- scene.traverse(o=>{if(o.userData.hl){o.material.emissive?.setHex(0); o.userData.hl=false}})
-}
-function highlight(u){
- clearHighlights();
- for(let z=0;z<boardSize;z++)for(let x=0;x<boardSize;x++){
-  const d=Math.abs(x-u.x)+Math.abs(z-u.z), c=cells.get(key(x,z));
-  if(d<=2 && d>0 && !c.blocked && !c.unit){
-   c.mesh.material.emissive=new THREE.Color(0x244e20); c.mesh.material.emissiveIntensity=.8; c.mesh.userData.hl=true;
+function render(){
+ ctx.clearRect(0,0,W,H);
+ const grad=ctx.createLinearGradient(0,0,0,H);grad.addColorStop(0,'#0a1a21');grad.addColorStop(1,'#071016');ctx.fillStyle=grad;ctx.fillRect(0,0,W,H);
+ let items=[];
+ for(let z=0;z<N;z++)for(let x=0;x<N;x++){const p=iso(x,0,z);items.push({d:p.depth,f:()=>tileTop(x,z)});}
+ trees.forEach(s=>{let [x,z]=s.split(',').map(Number),p=iso(x,0,z);items.push({d:p.depth+1,f:()=>tree(x,z)})});
+ blocked.forEach(s=>{let [x,z]=s.split(',').map(Number),p=iso(x,0,z);items.push({d:p.depth+1,f:()=>building(x,z)})});
+ units.forEach(u=>{let p=iso(u.x,0,u.z);items.push({d:p.depth+2,f:()=>unitDraw(u)})});
+ items.sort((a,b)=>a.d-b.d).forEach(i=>i.f());
+ if(selected&&!gameOver){
+  for(let z=0;z<N;z++)for(let x=0;x<N;x++){
+   const c=units.find(u=>u.x===x&&u.z===z);const d=Math.abs(x-selected.x)+Math.abs(z-selected.z);
+   if(d>0&&d<=2&&!blocked.has(x+','+z)&&!water.has(x+','+z)&&!c){
+    const a=iso(x-.8,.04,z-.8),b=iso(x+.8,.04,z-.8),cc=iso(x+.8,.04,z+.8),q=iso(x-.8,.04,z+.8);poly([a,b,cc,q],'#4caf5033','#9cff65');
+   }
   }
  }
+ requestAnimationFrame(render);
 }
-function select(u){
- if(gameOver)return;
- if(u.team!==turn){toast("It's "+turn.toUpperCase()+" turn");return}
- selected=u; highlight(u);
- document.getElementById("status").textContent=`${u.type.toUpperCase()} • HP ${u.hp}/${u.maxHp} • ${u.acted?"ACTED":"READY"}`;
-}
-function move(u,c){
- if(u.acted)return toast("Unit already acted");
- const d=Math.abs(c.x-u.x)+Math.abs(c.z-u.z); if(d>2)return;
- cells.get(key(u.x,u.z)).unit=null; c.unit=u;
- u.x=c.x;u.z=c.z;u.acted=true;
- const p=world(u.x,u.z);
- new TWEEN.Tween(u.mesh.position).to({x:p.x,z:p.z},350).easing(TWEEN.Easing.Quadratic.Out).start();
- toast("Moved"); selected=null; clearHighlights(); updateStatus();
-}
-function attack(u,target){
- if(u.acted)return;
- const d=Math.abs(u.x-target.x)+Math.abs(u.z-target.z); if(d>2)return toast("Out of range");
- u.acted=true; target.hp-=u.type==="tank"?45:30; updateBar(target);
- flash(target.mesh);
- if(target.hp<=0){
-   cells.get(key(target.x,target.z)).unit=null;
-   scene.remove(target.mesh); units.splice(units.indexOf(target),1);
-   toast("Enemy unit destroyed!");
-   if(!units.some(v=>v.team!==u.team)){gameOver=true;toast("🏆 "+u.team.toUpperCase()+" WINS!")}
- }else toast("Hit! Enemy HP "+target.hp);
- selected=null; clearHighlights(); updateStatus();
-}
-function flash(mesh){
- mesh.traverse(o=>{if(o.isMesh){const old=o.material.emissive?.getHex(); if(o.material.emissive){o.material.emissive.setHex(0xff6600);setTimeout(()=>o.material.emissive.setHex(old||0),180)}}})
-}
-function updateStatus(){
- document.getElementById("turn").textContent=turn.toUpperCase()+" • YOUR TURN";
- document.getElementById("status").textContent=selected?`${selected.type.toUpperCase()} • HP ${selected.hp}/${selected.maxHp}`:"Select a unit";
-}
-function endTurn(){
- if(gameOver)return;
- units.filter(u=>u.team===turn).forEach(u=>u.acted=false);
- turn=turn==="blue"?"red":"blue"; selected=null; clearHighlights(); updateStatus();
- if(turn==="red") setTimeout(aiTurn,450);
-}
-function aiTurn(){
- const reds=units.filter(u=>u.team==="red"), blues=units.filter(u=>u.team==="blue");
- for(const r of reds){
-  let target=blues.find(b=>Math.abs(b.x-r.x)+Math.abs(b.z-r.z)<=2);
-  if(target){target.hp-=r.type==="tank"?35:20;updateBar(target);flash(target.mesh);if(target.hp<=0){cells.get(key(target.x,target.z)).unit=null;scene.remove(target.mesh);units.splice(units.indexOf(target),1)}}
- }
- turn="blue"; units.filter(u=>u.team==="blue").forEach(u=>u.acted=false); updateStatus();
- if(!units.some(u=>u.team==="red")){gameOver=true;toast("🏆 BLUE WINS!")}
-}
-function toast(s){const e=document.getElementById("toast");e.textContent=s;e.classList.add("show");clearTimeout(window.tt);window.tt=setTimeout(()=>e.classList.remove("show"),1300)}
+render();
 
-const ray=new THREE.Raycaster(), mouse=new THREE.Vector2();
-renderer.domElement.addEventListener("pointerdown",e=>{
- if(e.button!==0)return;
- mouse.x=(e.clientX/innerWidth)*2-1; mouse.y=-(e.clientY/innerHeight)*2+1;
- ray.setFromCamera(mouse,camera);
- const hits=ray.intersectObjects(scene.children,true);
- for(const h of hits){
-  let o=h.object; while(o.parent && !o.userData.unit)o=o.parent;
-  const u=units.find(v=>v.mesh===o);
-  if(u){ if(u.team===turn)select(u); else if(selected)attack(selected,u); return; }
-  const cell=[...cells.values()].find(c=>c.mesh===h.object);
-  if(cell && selected){move(selected,cell);return}
- }
+function toast(s){const e=document.getElementById('toast');e.textContent=s;e.classList.add('show');clearTimeout(window._t);window._t=setTimeout(()=>e.classList.remove('show'),1300)}
+function update(){document.getElementById('turn').textContent=(turn==='blue'?'🔵 BLUE':'🔴 RED')+' • '+(turn==='blue'?'YOUR TURN':'ENEMY TURN');document.getElementById('status').textContent=selected?selected.type.toUpperCase()+' • HP '+selected.hp+'/100':'Select a unit'}
+function pick(mx,my){
+ let best=null,bd=999;
+ units.forEach(u=>{let p=iso(u.x,1,u.z),d=Math.hypot(mx-p.x,my-p.y);if(d<30&&d<bd){best=u;bd=d}});
+ return best;
+}
+canvas.addEventListener('pointerdown',e=>{drag=true;lastX=e.clientX;lastY=e.clientY;moved=false});
+canvas.addEventListener('pointermove',e=>{if(!drag)return;let dx=e.clientX-lastX,dy=e.clientY-lastY;if(Math.abs(dx)+Math.abs(dy)>3)moved=true;yaw+=dx*.008;pitch=Math.max(.55,Math.min(1.25,pitch+dy*.006));lastX=e.clientX;lastY=e.clientY});
+canvas.addEventListener('pointerup',e=>{
+ if(!moved){const u=pick(e.clientX,e.clientY);if(u){if(u.team===turn){selected=u;update()}else if(selected){attack(selected,u)}}else if(selected){moveTo(e.clientX,e.clientY)}}
+ drag=false;
 });
+canvas.addEventListener('wheel',e=>{e.preventDefault();zoom*=e.deltaY>0?.9:1.1;zoom=Math.max(.55,Math.min(1.8,zoom))},{passive:false});
 
-const TWEEN={Easing:{Quadratic:{Out:t=>1-Math.pow(1-t,2)}},_a:[]};
-TWEEN.Tween=class{constructor(o){this.o=o;this.startVals={};this.end={};this.d=300;this.s=performance.now()}
-to(v,d){this.end=v;this.d=d;for(const k in v)this.startVals[k]=this.o[k];TWEEN._a.push(this);return this}
-easing(f){this.ease=f;return this}
-start(){this.s=performance.now();return this}};
-function animateTweens(){
- const now=performance.now();
- TWEEN._a=TWEEN._a.filter(t=>{const p=Math.min(1,(now-t.s)/t.d),e=t.ease?t.ease(p):p;for(const k in t.end)t.o[k]=t.startVals[k]+(t.end[k]-t.startVals[k])*e;return p<1})
+function nearestCell(mx,my){
+ let best=null,bd=1e9;
+ for(let z=0;z<N;z++)for(let x=0;x<N;x++){let p=iso(x,0,z),d=Math.hypot(mx-p.x,my-p.y);if(d<bd){bd=d;best={x,z}}}
+ return bd<70?best:null;
 }
-addUnit("blue","infantry",1,10); addUnit("blue","tank",2,10); addUnit("blue","infantry",1,9);
-addUnit("red","infantry",10,1); addUnit("red","tank",9,1); addUnit("red","infantry",10,2);
-
-document.getElementById("endBtn").onclick=endTurn;
-document.getElementById("resetBtn").onclick=()=>location.reload();
-document.getElementById("centerBtn").onclick=()=>{camera.position.set(13,16,18);controls.target.set(0,0,0);controls.update()};
-addEventListener("resize",()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
-function loop(){requestAnimationFrame(loop);animateTweens();controls.update();renderer.render(scene,camera)}
-loop();
+function moveTo(mx,my){
+ const c=nearestCell(mx,my);if(!c)return;
+ const d=Math.abs(c.x-selected.x)+Math.abs(c.z-selected.z);
+ if(d>2||blocked.has(c.x+','+c.z)||water.has(c.x+','+c.z)||units.some(u=>u.x===c.x&&u.z===c.z)){toast('Invalid move');return}
+ selected.x=c.x;selected.z=c.z;selected=null;update();
+}
+function attack(a,b){
+ const d=Math.abs(a.x-b.x)+Math.abs(a.z-b.z);if(d>2){toast('Out of range');return}
+ b.hp-=a.type==='tank'?45:30;toast('💥 Hit! Enemy HP '+Math.max(0,b.hp));
+ if(b.hp<=0){units.splice(units.indexOf(b),1);toast('💥 Enemy unit destroyed!')}
+ selected=null;update();if(!units.some(u=>u.team==='red')){gameOver=true;toast('🏆 BLUE WINS!')}
+}
+function ai(){
+ const reds=units.filter(u=>u.team==='red');const blues=units.filter(u=>u.team==='blue');
+ reds.forEach(r=>{let t=blues.find(b=>Math.abs(b.x-r.x)+Math.abs(b.z-r.z)<=2);if(t){t.hp-=r.type==='tank'?35:20;if(t.hp<=0)units.splice(units.indexOf(t),1)}});
+ turn='blue';update();if(!units.some(u=>u.team==='red')){gameOver=true;toast('🏆 BLUE WINS!')}
+}
+document.getElementById('end').onclick=()=>{if(gameOver)return;selected=null;turn='red';update();setTimeout(ai,500)};
+document.getElementById('center').onclick=()=>{yaw=-.62;pitch=.92;zoom=1;panX=0;panY=30};
+document.getElementById('reset').onclick=()=>location.reload();
+update();
 </script>
 </body>
 </html>
