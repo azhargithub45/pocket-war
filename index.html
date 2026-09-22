@@ -3,75 +3,221 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Pocket War Online</title>
+<title>Pocket War 3D</title>
 <style>
-*{box-sizing:border-box}html,body{margin:0;background:#101815;color:#fff;font-family:Arial,sans-serif}
-body{min-height:100vh}.wrap{max-width:900px;margin:auto;padding:10px}.top{display:flex;gap:8px;align-items:center;justify-content:space-between;background:#17251f;border:1px solid #3a5147;border-radius:12px;padding:10px}.title{font-weight:900;letter-spacing:1px}.pill{padding:7px 10px;border-radius:8px;background:#263c32;font-size:12px}
-.menu{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}.panel{background:#17251f;border:1px solid #3a5147;border-radius:12px;padding:10px}.panel h3{margin:0 0 8px}.input{width:100%;padding:11px;border-radius:8px;border:1px solid #4c6258;background:#0d1512;color:white;font-size:16px}.btn{min-height:44px;border:2px solid #61756a;border-radius:9px;background:#243a31;color:#fff;font-weight:800;padding:9px 12px;cursor:pointer}.primary{border-color:#e5bd36;background:#49401d;color:#ffe98b}.danger{border-color:#a84a44;background:#442522}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}.hidden{display:none!important}
-.boardWrap{background:#0b1210;border:2px solid #40564d;border-radius:14px;padding:8px;overflow:auto}.board{position:relative;width:min(88vw,720px);height:min(88vw,720px);min-width:320px;min-height:320px;margin:auto;overflow:hidden;border-radius:10px;background:linear-gradient(145deg,#507b4e,#315c3e)}
-.tile{position:absolute;width:11.111%;height:11.111%;border:1px solid #ffffff18;background:#3d6c47;cursor:pointer}.tile:nth-child(odd){background:#416f49}.tile.water{background:#285d73}.tile.mountain{background:#586456}.tile.move{background:#6e9b4e;box-shadow:inset 0 0 0 3px #e4c33c}.tile.attack{background:#91443f;box-shadow:inset 0 0 0 3px #ff9b44}.tile.selected{outline:3px solid white;outline-offset:-3px}
-.decor{position:absolute;pointer-events:none;z-index:2}.tree{width:7%;height:7%;border-radius:50%;background:#214e30;border:3px solid #163b24;box-shadow:0 10px 0 -3px #61452b}.rock{width:6%;height:4%;background:#68716b;border:2px solid #444c47;border-radius:50%}
-.unit{position:absolute;width:11.111%;height:11.111%;z-index:5;display:flex;align-items:center;justify-content:center;cursor:pointer}.figure{position:relative}.inf{width:42%;height:58%;background:#316bd0;border:2px solid #152d55;border-radius:35% 35% 25% 25%}.red .inf{background:#c34340;border-color:#511a19}.inf:before{content:"";position:absolute;width:65%;height:32%;left:18%;top:-18%;background:#d5a17a;border:2px solid #704d38;border-radius:50%}.inf:after{content:"";position:absolute;width:85%;height:9%;right:-65%;top:45%;background:#222;border-radius:3px;transform:rotate(-10deg)}
-.tank{width:76%;height:48%;background:#2e66c6;border:3px solid #162c4b;border-radius:10px}.red .tank{background:#bd403e;border-color:#501918}.tank:before{content:"";position:absolute;width:40%;height:65%;left:30%;top:15%;background:#566d5f;border:2px solid #18221f;border-radius:50%}.tank:after{content:"";position:absolute;width:70%;height:9%;right:-58%;top:44%;background:#222;border-radius:3px}
-.art{width:68%;height:48%;background:#65715e;border:3px solid #242b27;border-radius:8px}.art:after{content:"";position:absolute;width:75%;height:9%;right:-60%;top:43%;background:#242a27;border-radius:3px}
-.hp{position:absolute;top:5%;width:78%;height:5px;background:#351b1b;border-radius:4px;overflow:hidden;z-index:2}.hp i{display:block;height:100%;background:#5ec16a}.label{position:absolute;bottom:2%;font-size:7px;font-weight:900;text-shadow:0 1px 3px #000}
-.hud{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}.card{background:#17251f;border:1px solid #3a5147;border-radius:10px;padding:9px}.small{font-size:12px;color:#b8c7c0;margin-top:4px}.bar{height:6px;background:#2d1919;border-radius:4px;overflow:hidden;margin-top:5px}.bar i{display:block;height:100%;background:#58bd64}.log{margin-top:8px;background:#0b1210;border:1px solid #30483e;border-radius:9px;padding:8px;font-size:12px;min-height:40px;max-height:100px;overflow:auto}
-@media(max-width:600px){.menu{grid-template-columns:1fr}.hud{grid-template-columns:1fr}.actions .btn{flex:1}}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;font-family:Arial,sans-serif;background:#07101a;color:#fff}
+#app{position:fixed;inset:0;background:linear-gradient(#10243a,#07101a)}
+canvas{display:block}
+.screen{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:18px;background:radial-gradient(circle at 50% 25%,rgba(37,104,163,.28),rgba(2,8,15,.88))}
+.panel{width:min(720px,96vw);max-height:92vh;overflow:auto;padding:24px;border:1px solid #4c7190;border-radius:22px;background:linear-gradient(145deg,rgba(10,28,45,.94),rgba(4,12,21,.96));box-shadow:0 18px 60px #0009}
+.logo{font-size:clamp(42px,10vw,86px);font-weight:1000;letter-spacing:-3px;text-align:center;color:#ffb52d;text-shadow:0 5px 0 #7b2c09,0 9px 20px #000}
+.sub{text-align:center;color:#bcd5e8;margin:-3px 0 24px;font-weight:700;letter-spacing:2px}
+.btn{width:100%;min-height:54px;margin:8px 0;border:1px solid #5e83a0;border-radius:13px;color:#fff;font-size:18px;font-weight:800;background:linear-gradient(#17486f,#0b2944);box-shadow:inset 0 1px #ffffff30;touch-action:manipulation}
+.btn.primary{background:linear-gradient(#20a64d,#0a6d2e);border-color:#68ef8e}
+.btn.blue{background:linear-gradient(#276be4,#123c91);border-color:#70a4ff}
+.btn.danger{background:linear-gradient(#c83b3b,#771919)}
+.btn:active{transform:scale(.98)}
+.maps{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.map{padding:12px;border-radius:15px;border:1px solid #3f6078;background:#0a1b2a;cursor:pointer}.map b{display:block;margin-top:8px}.thumb{height:125px;border-radius:11px;position:relative;overflow:hidden;background:linear-gradient(145deg,#4f9d45,#193f2a)}.thumb.desert{background:linear-gradient(145deg,#d4a35b,#684827)}.thumb.island{background:linear-gradient(145deg,#24a8c0,#07506b)}.thumb.mountain{background:linear-gradient(145deg,#b8c5cf,#374c59)}
+.thumb:after{content:"";position:absolute;inset:18% 12%;border-radius:20%;background:linear-gradient(135deg,#4f9b42 0 38%,#b9d07d 39% 45%,#497d39 46%);transform:rotate(-10deg);box-shadow:0 18px 0 #0002}
+#hud{display:none;position:absolute;inset:0;pointer-events:none}.topbar{position:absolute;top:10px;left:10px;right:10px;display:flex;justify-content:space-between;gap:8px;pointer-events:auto}.badge{background:#071727dd;border:1px solid #55758d;border-radius:12px;padding:10px 13px;font-weight:800}.blueText{color:#58a8ff}.redText{color:#ff6565}
+#actions{position:absolute;left:10px;right:10px;bottom:10px;display:flex;gap:8px;align-items:end;pointer-events:auto}.unitCard{flex:1;min-width:0;background:#071727eF;border:1px solid #55758d;border-radius:14px;padding:10px}.unitCard strong{font-size:18px}.bar{height:7px;background:#4a2020;border-radius:9px;margin-top:6px;overflow:hidden}.bar i{display:block;height:100%;background:#42df68}.actionBtns{display:flex;gap:8px}.smallBtn{height:52px;padding:0 15px;border-radius:12px;border:1px solid #5d7d95;background:#123451;color:#fff;font-weight:900}.smallBtn.active{background:#e7a51b;color:#111}.smallBtn.end{background:#173d20;border-color:#70dc8a}.hint{position:absolute;top:64px;left:50%;transform:translateX(-50%);background:#061321dd;border:1px solid #55758d;border-radius:10px;padding:8px 13px;pointer-events:none}
+@media(max-width:650px){.panel{padding:18px}.maps{gap:8px}.thumb{height:95px}.actionBtns{flex-wrap:wrap}.smallBtn{flex:1}.unitCard{font-size:12px}.unitCard strong{font-size:15px}.badge{font-size:12px;padding:8px}.logo{font-size:48px}}
+.hidden{display:none!important}
+input{width:100%;height:50px;border-radius:11px;border:1px solid #55758d;background:#061321;color:#fff;padding:0 14px;font-size:18px;margin:8px 0}
+.row{display:flex;gap:10px}.row>*{flex:1}
 </style>
 </head>
 <body>
-<div class="wrap">
-<div class="top"><div class="title">⚔️ POCKET WAR ONLINE</div><div id="status" class="pill">OFFLINE</div></div>
-<div id="lobby" class="menu">
-  <div class="panel"><h3>Create room</h3><input id="room" class="input" maxlength="12" placeholder="Room code e.g. AZHAR1"><div class="actions"><button id="create" class="btn primary">CREATE</button></div></div>
-  <div class="panel"><h3>Join room</h3><input id="joinRoom" class="input" maxlength="12" placeholder="Room code"><div class="actions"><button id="join" class="btn">JOIN</button></div></div>
-  <div class="panel"><h3>Single player</h3><div class="small">Play against the built-in AI without a server.</div><div class="actions"><button id="ai" class="btn">PLAY AI</button></div></div>
-  <div class="panel"><h3>Online note</h3><div class="small">The included server.js is a separate original WebSocket server. Run it on a machine/server, then set SERVER below in this file.</div></div>
-</div>
+<div id="app">
+<div id="menu" class="screen"><div class="panel">
+<div class="logo">POCKET WAR</div><div class="sub">TACTICS • BATTLE • VICTORY</div>
+<button class="btn primary" id="vsai">⚔️ PLAY VS AI</button>
+<button class="btn blue" id="online">🌐 ONLINE MULTIPLAYER</button>
+<button class="btn" id="settings">⚙️ SETTINGS</button>
+<p style="text-align:center;color:#8da7ba">3D toy-like battlefield • original assets • mobile ready</p>
+</div></div>
 
-<div id="game" class="hidden">
-<div class="actions"><button id="end" class="btn primary">END TURN</button><button id="wait" class="btn">WAIT</button><button id="leave" class="btn danger">LEAVE</button></div>
-<div class="boardWrap"><div id="board" class="board"></div></div>
-<div class="hud">
- <div class="card"><b id="selName">Select a unit</b><div id="selInfo" class="small">Blue units are yours.</div><div class="bar"><i id="selHp" style="width:0%"></i></div></div>
- <div class="card"><b id="turn">YOUR TURN</b><div id="score" class="small">Blue 3 · Red 3</div><div id="objective" class="small">Destroy every enemy unit.</div></div>
+<div id="maps" class="screen hidden"><div class="panel"><h1>SELECT MAP</h1>
+<div class="maps">
+<div class="map" data-map="green"><div class="thumb"></div><b>Green Fields</b></div>
+<div class="map" data-map="desert"><div class="thumb desert"></div><b>Desert Base</b></div>
+<div class="map" data-map="island"><div class="thumb island"></div><b>Island War</b></div>
+<div class="map" data-map="mountain"><div class="thumb mountain"></div><b>Mountain Pass</b></div>
+</div><button class="btn" id="backMenu">← Main Menu</button></div></div>
+
+<div id="onlinePanel" class="screen hidden"><div class="panel"><h1>🌐 ONLINE MULTIPLAYER</h1>
+<button class="btn primary" id="create">CREATE ROOM</button>
+<div class="row"><input id="roomInput" placeholder="ROOM CODE"><button class="btn blue" id="join">JOIN</button></div>
+<div id="roomStatus" style="padding:12px;color:#a9c5d9"></div>
+<button class="btn" id="backOnline">← Main Menu</button></div></div>
+
+<div id="settingsPanel" class="screen hidden"><div class="panel"><h1>⚙️ SETTINGS</h1>
+<label>Graphics <select id="quality" style="width:100%;height:46px;background:#061321;color:#fff;border-radius:9px;margin:8px 0"><option>High</option><option>Medium</option><option>Low</option></select></label>
+<button class="btn" id="backSettings">← Main Menu</button></div></div>
+
+<div id="hud">
+<div class="topbar"><div class="badge" id="turn">⭐ Turn 1 • BLUE</div><div class="badge">Objective: Destroy enemy HQ</div></div>
+<div class="hint" id="hint">Tap a blue unit</div>
+<div id="actions"><div class="unitCard"><strong id="unitName">Select a unit</strong><div id="unitStats">Tap a unit on the battlefield</div><div class="bar"><i id="hpBar" style="width:100%"></i></div></div><div class="actionBtns"><button class="smallBtn" id="moveBtn">➡ Move</button><button class="smallBtn" id="attackBtn">✦ Attack</button><button class="smallBtn" id="waitBtn">◷ Wait</button><button class="smallBtn end" id="endBtn">End Turn</button></div></div>
 </div>
-<div id="log" class="log">Ready.</div>
 </div>
-</div>
-<script>
-const SERVER="ws://YOUR_SERVER_HOST:8080";
-const N=9, board=document.getElementById("board");
-let mode="ai",ws=null,room="",side="blue",turn="blue",selected=null,units=[],over=false,aiTimer=null;
-const terrain=[
-[0,0,1,1,0,0,0,1,0],[0,2,2,0,0,1,0,0,0],[0,2,2,0,1,0,0,0,0],
-[0,0,0,0,0,0,1,0,0],[1,0,0,0,0,0,0,0,1],[0,0,1,0,0,0,0,2,2],
-[0,0,0,0,1,0,0,2,2],[1,0,0,0,0,1,0,0,0],[1,0,0,0,0,0,0,0,1]];
-const log=m=>document.getElementById("log").textContent=m;
-const at=(x,y)=>units.find(u=>u.hp>0&&u.x===x&&u.y===y);
-const dist=(a,b)=>Math.abs(a.x-b.x)+Math.abs(a.y-b.y);
-function reset(){units=[
-{id:1,t:"inf",team:"blue",x:0,y:7,hp:100,m:3,r:1},{id:2,t:"tank",team:"blue",x:1,y:8,hp:120,m:2,r:1},{id:3,t:"art",team:"blue",x:0,y:8,hp:85,m:2,r:3},
-{id:4,t:"inf",team:"red",x:8,y:1,hp:100,m:3,r:1},{id:5,t:"tank",team:"red",x:7,y:0,hp:120,m:2,r:1},{id:6,t:"art",team:"red",x:8,y:0,hp:85,m:2,r:3}];
-selected=null;turn="blue";side="blue";over=false;draw();log("Battle started. Select a blue unit.");}
-function openGame(){document.getElementById("lobby").classList.add("hidden");document.getElementById("game").classList.remove("hidden");reset();}
-function draw(){
- board.innerHTML="";
- for(let y=0;y<N;y++)for(let x=0;x<N;x++){let c=document.createElement("button");c.className="tile "+(terrain[y][x]===1?"mountain":terrain[y][x]===2?"water":"");c.style.left=(x*100/N)+"%";c.style.top=(y*100/N)+"%";c.onclick=()=>tap(x,y);if(selected&&selected.team===side&&turn===side){if(!at(x,y)&&terrain[y][x]===0&&dist(selected,{x,y})<=selected.m)c.classList.add("move");let v=at(x,y);if(v&&v.team!==side&&dist(selected,v)<=selected.r)c.classList.add("attack");}if(selected&&selected.x===x&&selected.y===y)c.classList.add("selected");board.appendChild(c);}
- [[18,16],[78,18],[25,75],[83,72],[52,25],[8,45],[62,58]].forEach(p=>{let e=document.createElement("div");e.className="decor tree";e.style.left=p[0]+"%";e.style.top=p[1]+"%";board.appendChild(e)});
- [[35,35],[70,62],[14,63],[88,43]].forEach(p=>{let e=document.createElement("div");e.className="decor rock";e.style.left=p[0]+"%";e.style.top=p[1]+"%";board.appendChild(e)});
- units.filter(u=>u.hp>0).forEach(u=>{let e=document.createElement("div");e.className="unit "+u.team;e.style.left=(u.x*100/N)+"%";e.style.top=(u.y*100/N)+"%";let cls=u.t==="tank"?"tank":u.t==="art"?"art":"inf";e.innerHTML='<div class="hp"><i style="width:'+Math.max(0,u.hp/(u.t==="tank"?120:100)*100)+'%"></i></div><div class="figure '+cls+'"></div><span class="label">'+u.t.toUpperCase()+'</span>';e.onclick=()=>tap(u.x,u.y);board.appendChild(e)});
- let b=units.filter(u=>u.team==="blue"&&u.hp>0).length,r=units.filter(u=>u.team==="red"&&u.hp>0).length;document.getElementById("score").textContent="Blue "+b+" · Red "+r;document.getElementById("turn").textContent=turn===side?"YOUR TURN":"OPPONENT TURN";
- if(selected&&selected.hp>0){document.getElementById("selName").textContent=selected.t==="tank"?"🛡️ TANK":selected.t==="art"?"💥 ARTILLERY":"🪖 INFANTRY";document.getElementById("selInfo").textContent="HP "+selected.hp+" · Move "+selected.m+" · Range "+selected.r;document.getElementById("selHp").style.width=Math.max(0,selected.hp/(selected.t==="tank"?120:100)*100)+"%"}else{document.getElementById("selName").textContent="Select a unit";document.getElementById("selInfo").textContent="Blue units are yours.";document.getElementById("selHp").style.width="0%"}
+<script src="/socket.io/socket.io.js"></script>
+<script type="module">
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.module.js';
+import {OrbitControls} from 'https://cdn.jsdelivr.net/npm/three@0.161.0/examples/jsm/controls/OrbitControls.js';
+
+const $=id=>document.getElementById(id);
+const screens=['menu','maps','onlinePanel','settingsPanel'];
+function show(id){screens.forEach(x=>$(x).classList.toggle('hidden',x!==id)); $('hud').style.display=id==='battle'?'block':'none'}
+show('menu');
+
+let scene,camera,renderer,controls,raycaster,mouse,units=[],selected=null,mode='select',turn=1,side='blue',mapName='green',anim=[];
+const tileSize=2.35,W=9,H=7;
+const mat=(c)=>new THREE.MeshStandardMaterial({color:c,roughness:.82});
+const blue=0x2b78d4, red=0xd83c3c, grass=0x4d9343, darkGrass=0x326b37, water=0x167aa1, road=0x77715f;
+
+function init3D(){
+ scene=new THREE.Scene(); scene.background=new THREE.Color(0x86c9ed);
+ camera=new THREE.PerspectiveCamera(45,innerWidth/innerHeight,.1,200);
+ camera.position.set(12,17,18);
+ renderer=new THREE.WebGLRenderer({antialias:true}); renderer.setPixelRatio(Math.min(devicePixelRatio,1.7)); renderer.setSize(innerWidth,innerHeight); renderer.shadowMap.enabled=true; renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+ document.getElementById('app').appendChild(renderer.domElement);
+ controls=new OrbitControls(camera,renderer.domElement); controls.enableDamping=true; controls.maxPolarAngle=Math.PI/2.25; controls.minDistance=10; controls.maxDistance=34; controls.target.set(0,0,0);
+ raycaster=new THREE.Raycaster(); mouse=new THREE.Vector2();
+ scene.add(new THREE.HemisphereLight(0xd9f2ff,0x36542d,2.1));
+ const sun=new THREE.DirectionalLight(0xffffff,3.2);sun.position.set(8,18,7);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);scene.add(sun);
+ renderer.domElement.addEventListener('pointerdown',pick);
+ window.addEventListener('resize',resize);
+ animate();
 }
-function tap(x,y){if(over||turn!==side)return;let v=at(x,y);if(v&&v.team===side){selected=v;draw();return}if(!selected)return;if(v&&v.team!==side&&dist(selected,v)<=selected.r){attack(selected,v);return}if(!v&&terrain[y][x]===0&&dist(selected,{x,y})<=selected.m){selected.x=x;selected.y=y;log("Unit moved.");send();draw()}else log("That tile is blocked or out of range.");}
-function attack(a,v){let dmg=a.t==="tank"?34:a.t==="art"?27:22;v.hp=Math.max(0,v.hp-dmg);log((a.team===side?"Your ":"Enemy ")+a.t.toUpperCase()+" hit for "+dmg);selected=null;send();check();draw();}
-function endTurn(){if(over||turn!==side)return;selected=null;if(mode==="online"){turn=side==="blue"?"red":"blue";send();draw()}else{turn="red";draw();aiTurn()}}
-function aiTurn(){clearTimeout(aiTimer);aiTimer=setTimeout(()=>{let es=units.filter(u=>u.team==="red"&&u.hp>0),bs=units.filter(u=>u.team==="blue"&&u.hp>0);for(let e of es){let t=bs.filter(x=>x.hp>0).sort((a,b)=>dist(e,a)-dist(e,b))[0];if(!t)continue;if(dist(e,t)<=e.r){let old=side;side="red";attack(e,t);side=old}else{let opts=[];for(let y=0;y<N;y++)for(let x=0;x<N;x++)if(!at(x,y)&&terrain[y][x]===0&&dist(e,{x,y})<=e.m)opts.push({x,y});opts.sort((a,b)=>Math.abs(a.x-t.x)+Math.abs(a.y-t.y)-(Math.abs(b.x-t.x)+Math.abs(b.y-t.y)));if(opts[0]){e.x=opts[0].x;e.y=opts[0].y}}}if(!over){turn="blue";side="blue";log("Enemy finished. Your turn.");draw()}},550)}
-function check(){let b=units.some(u=>u.team==="blue"&&u.hp>0),r=units.some(u=>u.team==="red"&&u.hp>0);if(!b||!r){over=true;log(b?"🏆 VICTORY!":"💀 DEFEAT");}}
-function send(){if(mode==="online"&&ws&&ws.readyState===1)ws.send(JSON.stringify({type:"state",room,side,units,turn}))}
-function connect(join){let code=(join?document.getElementById("joinRoom").value:document.getElementById("room").value).trim().toUpperCase();if(!code)return alert("Enter a room code");if(SERVER.includes("YOUR_SERVER_HOST"))return alert("Set SERVER in index.html to your deployed server address first.");room=code;ws=new WebSocket(SERVER);ws.onopen=()=>{ws.send(JSON.stringify({type:join?"join":"create",room}));document.getElementById("status").textContent="ONLINE"};ws.onmessage=e=>{let m=JSON.parse(e.data);if(m.type==="assign"){side=m.side;openGame();}if(m.type==="state"&&m.side!==side){units=m.units;turn=m.turn;draw();}if(m.type==="info")log(m.text)};ws.onclose=()=>document.getElementById("status").textContent="OFFLINE";ws.onerror=()=>log("Server connection failed.")} 
-document.getElementById("ai").onclick=()=>{mode="ai";side="blue";openGame()};document.getElementById("create").onclick=()=>{mode="online";connect(false)};document.getElementById("join").onclick=()=>{mode="online";connect(true)};document.getElementById("end").onclick=endTurn;document.getElementById("wait").onclick=endTurn;document.getElementById("leave").onclick=()=>location.reload();
+function resize(){if(!camera)return;camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)}
+function clearScene(){while(scene.children.length>3)scene.remove(scene.children[3]);units=[];selected=null}
+function makeTile(x,z,y,c){
+ const g=new THREE.CylinderGeometry(1.28,1.42,.55,6);const m=new THREE.Mesh(g,mat(c));m.position.set(x*tileSize,y,z*tileSize);m.receiveShadow=true;m.userData={tile:true,x,z,walkable:true};scene.add(m);return m;
+}
+function tree(x,z){const g=new THREE.Group();const t=new THREE.Mesh(new THREE.CylinderGeometry(.16,.23,1.05,7),mat(0x754f2a));t.position.y=.7;const c=new THREE.Mesh(new THREE.ConeGeometry(.8,1.8,8),mat(0x28683b));c.position.y=1.75;g.add(t,c);g.position.set(x*tileSize,0,z*tileSize);g.traverse(o=>{if(o.isMesh)o.castShadow=true});scene.add(g)}
+function rock(x,z){const r=new THREE.Mesh(new THREE.DodecahedronGeometry(.65,.1),mat(0x65727a));r.position.set(x*tileSize,.55,z*tileSize);r.scale.y=.75;r.castShadow=true;scene.add(r)}
+function makeBase(x,z,color){const g=new THREE.Group();const b=new THREE.Mesh(new THREE.BoxGeometry(1.8,.8,1.5),mat(color));b.position.y=.55;const roof=new THREE.Mesh(new THREE.ConeGeometry(1.25,.7,4),mat(0x303a43));roof.position.y=1.3;roof.rotation.y=Math.PI/4;g.add(b,roof);g.position.set(x*tileSize,0,z*tileSize);g.traverse(o=>{if(o.isMesh)o.castShadow=true});scene.add(g);return g}
+function buildMap(){
+ clearScene();
+ const waterMap=mapName==='island';
+ for(let z=-H/2;z<=H/2;z++)for(let x=-W/2;x<=W/2;x++){
+   let y=.1, c=grass;
+   if(waterMap && (Math.abs(x)>3.1||Math.abs(z)>2.1)){c=water;y=-.15}
+   else if(mapName==='desert')c=0xb68a4f;
+   else if(mapName==='mountain')y=Math.max(0,2.2-Math.abs(x)-Math.abs(z)*.45),c=0x65796b;
+   else if((x+z)%5===0)c=darkGrass;
+   const tile=makeTile(x,z,y,c);
+   if(c!==water && Math.random()<.13)tree(x,z);
+   if(c!==water && Math.random()<.07)rock(x,z);
+ }
+ // roads
+ for(let x=-4;x<=4;x++){const p=new THREE.Mesh(new THREE.BoxGeometry(1.0,.08,2.0),mat(road));p.position.set(x*tileSize,.4,0);scene.add(p)}
+ // river and bridges
+ if(!waterMap){
+   const river=new THREE.Mesh(new THREE.BoxGeometry(3.0,.08,20),mat(water));river.position.y=.3;river.rotation.y=.12;scene.add(river);
+   for(let z=-2;z<=2;z+=4){const br=new THREE.Mesh(new THREE.BoxGeometry(3.4,.35,2.1),mat(0x8a5c32));br.position.set(0,.55,z*tileSize);br.castShadow=true;scene.add(br)}
+ }
+ makeBase(-3,-2,blue);makeBase(3,2,red);
+ spawnUnits();
+}
+function unitMesh(u){
+ const g=new THREE.Group();
+ const body=new THREE.Mesh(new THREE.BoxGeometry(1.05,.55,.9),mat(u.side==='blue'?blue:red));body.position.y=.7;
+ body.castShadow=true;g.add(body);
+ if(u.type==='infantry'){
+   const head=new THREE.Mesh(new THREE.SphereGeometry(.3,10,8),mat(0xffc49b));head.position.set(0,1.35,0);g.add(head);
+   const helmet=new THREE.Mesh(new THREE.SphereGeometry(.34,10,6),mat(u.side==='blue'?0x173b78:0x751f25));helmet.position.set(0,1.5,0);g.add(helmet);
+ }else{
+   const turret=new THREE.Mesh(new THREE.CylinderGeometry(.38,.48,.25,10),mat(u.side==='blue'?0x194f91:0x942828));turret.position.y=1.05;turret.rotation.x=Math.PI/2;g.add(turret);
+   const barrel=new THREE.Mesh(new THREE.CylinderGeometry(.09,.09,1.2,8),mat(0x22272b));barrel.rotation.z=Math.PI/2;barrel.position.set(.55,1.08,0);g.add(barrel);
+ }
+ g.position.set(u.x*tileSize,.05,u.z*tileSize);g.userData.unit=u;scene.add(g);u.obj=g;
+}
+function spawnUnits(){
+ const data=[
+ {id:'b1',side:'blue',type:'infantry',x:-3,z:-1,hp:100,max:100,move:3,range:2,damage:25},
+ {id:'b2',side:'blue',type:'tank',x:-2,z:-2,hp:180,max:180,move:3,range:2,damage:45},
+ {id:'b3',side:'blue',type:'artillery',x:-3,z:1,hp:100,max:100,move:2,range:5,damage:50},
+ {id:'r1',side:'red',type:'infantry',x:3,z:1,hp:100,max:100,move:3,range:2,damage:25},
+ {id:'r2',side:'red',type:'tank',x:2,z:2,hp:180,max:180,move:3,range:2,damage:45},
+ {id:'r3',side:'red',type:'artillery',x:3,z:-1,hp:100,max:100,move:2,range:5,damage:50}
+ ];
+ units=data;units.forEach(unitMesh);
+}
+function pick(e){
+ if($('hud').style.display!=='block')return;
+ const r=renderer.domElement.getBoundingClientRect();mouse.x=((e.clientX-r.left)/r.width)*2-1;mouse.y=-((e.clientY-r.top)/r.height)*2+1;
+ raycaster.setFromCamera(mouse,camera);const hits=raycaster.intersectObjects(scene.children,true);
+ for(const h of hits){let o=h.object;while(o.parent&&!o.userData.unit)o=o.parent;if(o.userData.unit){handleUnit(o.userData.unit);return}}
+ // select terrain by nearest tile intersection
+ if(selected && mode==='move'){
+   const p=new THREE.Vector3();raycaster.ray.intersectPlane(new THREE.Plane(new THREE.Vector3(0,1,0),0),p);
+   const x=Math.round(p.x/tileSize),z=Math.round(p.z/tileSize);tryMove(x,z);
+ }
+}
+function handleUnit(u){
+ if(mode==='attack'&&selected&&u.side!==side){attack(u);return}
+ if(u.side===side){selected=u;mode='select';highlight();updateCard()}
+}
+function highlight(){
+ document.querySelectorAll('.rangeMarker').forEach(x=>scene.remove(x));
+ if(!selected)return;
+ const radius=selected.move;
+ for(let z=-H/2;z<=H/2;z++)for(let x=-W/2;x<=W/2;x++){
+   if(Math.abs(x-selected.x)+Math.abs(z-selected.z)<=radius){
+     const m=new THREE.Mesh(new THREE.CylinderGeometry(1.02,1.02,.03,6),mat(0x67b9ff));m.material.transparent=true;m.material.opacity=.28;m.position.set(x*tileSize,.45,z*tileSize);m.userData.rangeMarker=true;m.name='rangeMarker';m.userData.tile=true;scene.add(m);
+   }
+ }
+}
+function tryMove(x,z){
+ if(!selected||mode!=='move')return;
+ const dist=Math.abs(x-selected.x)+Math.abs(z-selected.z);
+ if(dist>selected.move||x<-4||x>4||z<-3||z>3)return;
+ if(units.some(u=>u.hp>0&&u!==selected&&u.x===x&&u.z===z)){return}
+ selected.x=x;selected.z=z;selected.obj.position.set(x*tileSize,.05,z*tileSize);mode='select';highlight();$('hint').textContent='Unit moved. Attack or end turn.';broadcast(); 
+}
+function attack(target){
+ if(!selected)return;const d=Math.abs(target.x-selected.x)+Math.abs(target.z-selected.z);
+ if(d>selected.range){$('hint').textContent='Target out of range';return}
+ target.hp=Math.max(0,target.hp-selected.damage);mode='select';$('hint').textContent=`${selected.type} attacks ${target.type} for ${selected.damage}`;
+ flash(target); if(target.hp<=0){scene.remove(target.obj);units=units.filter(x=>x!==target);if(target.type==='hq')win();}
+ updateCard();broadcast();
+}
+function flash(u){const e=new THREE.PointLight(0xffb43b,8,5);e.position.copy(u.obj.position);scene.add(e);setTimeout(()=>scene.remove(e),180)}
+function updateCard(){
+ if(!selected){$('unitName').textContent='Select a unit';$('unitStats').textContent='Tap a blue unit';return}
+ $('unitName').textContent=selected.type.toUpperCase();$('unitStats').textContent=`HP ${selected.hp}/${selected.max} • Move ${selected.move} • Range ${selected.range} • Damage ${selected.damage}`;$('hpBar').style.width=(selected.hp/selected.max*100)+'%';
+}
+function startBattle(m){mapName=m;showBattle();buildMap()}
+function showBattle(){screens.forEach(x=>$(x).classList.add('hidden'));$('hud').style.display='block';if(!renderer)init3D()}
+function endTurn(){if(side!=='blue')return;mode='select';selected=null;highlight();side='red';turn++;$('turn').textContent=`⭐ Turn ${turn} • RED`;aiTurn()}
+function aiTurn(){
+ setTimeout(()=>{
+  const reds=units.filter(u=>u.side==='red'&&u.hp>0);const blues=units.filter(u=>u.side==='blue'&&u.hp>0);
+  reds.forEach(r=>{
+   let target=blues.slice().sort((a,b)=>Math.abs(a.x-r.x)+Math.abs(a.z-r.z)- (Math.abs(b.x-r.x)+Math.abs(b.z-r.z)))[0];
+   if(!target)return;
+   const d=Math.abs(target.x-r.x)+Math.abs(target.z-r.z);
+   if(d<=r.range){target.hp=Math.max(0,target.hp-r.damage);flash(target);if(target.hp<=0){scene.remove(target.obj);units=units.filter(x=>x!==target)}}
+   else{const sx=Math.sign(target.x-r.x),sz=Math.sign(target.z-r.z);const nx=r.x+sx,nz=r.z+sz;if(!units.some(u=>u.hp>0&&u!==r&&u.x===nx&&u.z===nz)){r.x=nx;r.z=nz;r.obj.position.set(nx*tileSize,.05,nz*tileSize)}}
+  });
+  side='blue';$('turn').textContent=`⭐ Turn ${turn} • BLUE`;$('hint').textContent='Your move — tap a blue unit';broadcast();
+ },700);
+}
+function win(){setTimeout(()=>{const p=document.createElement('div');p.className='screen';p.innerHTML='<div class="panel" style="text-align:center"><div class="logo" style="font-size:56px">VICTORY!</div><p>Enemy forces defeated.</p><button class="btn primary" id="again">PLAY AGAIN</button><button class="btn" id="home">MAIN MENU</button></div>';$('app').appendChild(p);$('again').onclick=()=>{p.remove();startBattle(mapName)};$('home').onclick=()=>{p.remove();location.reload()};},300)}
+function broadcast(){if(window.sock&&window.room)window.sock.emit('state',{room:window.room,state:{units:units.map(u=>({id:u.id,side:u.side,type:u.type,x:u.x,z:u.z,hp:u.hp)),turn,side}})}
+function online(){if(window.io){window.sock=io();sock.on('roomJoined',d=>{$('roomStatus').textContent='Room '+d.room+' • Waiting/connected players: '+d.count;window.room=d.room});sock.on('remoteState',s=>{if(!s)return;turn=s.turn;side=s.side;s.units.forEach(r=>{const u=units.find(x=>x.id===r.id);if(u){u.x=r.x;u.z=r.z;u.hp=r.hp;if(u.obj)u.obj.position.set(u.x*tileSize,.05,u.z*tileSize)}})})}}
+$('vsai').onclick=()=>show('maps');$('online').onclick=()=>{show('onlinePanel');online()};$('settings').onclick=()=>show('settingsPanel');
+$('backMenu').onclick=()=>show('menu');$('backOnline').onclick=()=>show('menu');$('backSettings').onclick=()=>show('menu');
+document.querySelectorAll('.map').forEach(m=>m.onclick=()=>startBattle(m.dataset.map));
+$('moveBtn').onclick=()=>{if(selected){mode='move';$('hint').textContent='Tap a reachable tile';highlight()}};
+$('attackBtn').onclick=()=>{if(selected){mode='attack';$('hint').textContent='Tap an enemy in range'}};
+$('waitBtn').onclick=()=>{mode='select';selected=null;highlight();updateCard()};
+$('endBtn').onclick=endTurn;
+$('create').onclick=()=>{if(!window.sock)online();setTimeout(()=>sock.emit('createRoom'),150)};
+$('join').onclick=()=>{if(!window.sock)online();setTimeout(()=>sock.emit('joinRoom',$('roomInput').value.trim().toUpperCase()),150)};
+if(window.io)online();
 </script>
 </body>
 </html>
