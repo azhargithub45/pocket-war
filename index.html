@@ -1,0 +1,82 @@
+<!doctype html>
+<html><head>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Pocket War</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#071522;color:white;font-family:Arial,sans-serif}
+.wrap{max-width:900px;margin:auto;padding:12px}.top{display:flex;justify-content:space-between;gap:10px;align-items:center}
+h1{margin:0;font-size:25px}.muted{opacity:.75;font-size:13px}.panel{background:#102331;border:1px solid #34566d;border-radius:14px;padding:14px;margin-top:12px}
+.actions{display:flex;gap:10px;flex-wrap:wrap}button,input{font-size:16px;border-radius:10px;padding:12px}button{border:1px solid #5d7d92;background:#1769aa;color:#fff;font-weight:bold;cursor:pointer}input{background:#0c1b27;color:white;border:1px solid #45657d;width:150px;text-transform:uppercase}
+#game{display:none}#board{display:grid;grid-template-columns:repeat(8,1fr);gap:3px;max-width:620px;margin:12px auto}.cell{aspect-ratio:1;background:#3c673f;border:1px solid #78905d;border-radius:5px;padding:0;font-size:24px}.blue{outline:3px solid #278cff}.red{outline:3px solid #ff4b4b}.sel{box-shadow:0 0 0 3px #ffd43b inset}
+@media(max-width:600px){h1{font-size:20px}.cell{font-size:19px}}
+</style></head><body>
+<div class="wrap">
+<div class="top"><div><h1>POCKET WAR</h1><div class="muted">Online Tactical Battle</div></div><b id="status">Connecting...</b></div>
+
+<div id="lobby" class="panel">
+<div class="actions"><button id="create">CREATE ROOM</button><button id="join">JOIN ROOM</button></div>
+<div style="margin-top:12px">Room code: <input id="code" maxlength="5" placeholder="A7K92"></div>
+<p id="msg" class="muted">Create a room and send the code to your friend.</p>
+</div>
+
+<div id="game">
+<div class="panel top"><div>Room: <b id="room"></b></div><div id="turn"></div></div>
+<div id="board"></div>
+<div class="panel"><b id="help">Select your unit.</b><div class="muted">Tap your unit, then an adjacent square to move or attack.</div></div>
+</div>
+</div>
+
+<script>
+let ws=null,myPlayer=0,selected=null,state=null;
+const $=x=>document.getElementById(x);
+
+function connect(){
+  if(ws && (ws.readyState===0||ws.readyState===1))return;
+  const proto=location.protocol==="https:"?"wss":"ws";
+  ws=new WebSocket(proto+"://"+location.host);
+  ws.onopen=()=>{$("status").textContent="🟢 Online"};
+  ws.onclose=()=>{$("status").textContent="🔴 Offline"};
+  ws.onerror=()=>{$("msg").textContent="Connection error."};
+  ws.onmessage=e=>{
+    const m=JSON.parse(e.data);
+    if(m.type==="error"){$("msg").textContent=m.message;return}
+    if(m.type==="created"||m.type==="joined"){
+      myPlayer=m.player;$("room").textContent=m.code;
+      $("lobby").style.display="none";$("game").style.display="block";
+    }
+    if(m.type==="state"){state=m.state;render()}
+  };
+}
+function send(o){if(ws&&ws.readyState===1)ws.send(JSON.stringify(o))}
+$("create").onclick=()=>{connect();setTimeout(()=>send({type:"create"}),200)};
+$("join").onclick=()=>{
+  const c=$("code").value.trim().toUpperCase();
+  if(c.length!==5)return $("msg").textContent="Enter 5-character room code.";
+  connect();setTimeout(()=>send({type:"join",code:c}),200);
+};
+
+function render(){
+  $("turn").textContent=state.winner?"🏆 Player "+state.winner+" WINS!":"Turn: Player "+state.turn+(state.turn===myPlayer?" — YOUR TURN":" — WAIT");
+  const b=$("board");b.innerHTML="";
+  for(let y=0;y<8;y++)for(let x=0;x<8;x++){
+    const c=document.createElement("button");c.className="cell";
+    const u=state.units.find(a=>a.x===x&&a.y===y);
+    if(u){c.textContent=u.p===1?"🔵":"🔴";c.classList.add(u.p===1?"blue":"red");if(u.id===selected)c.classList.add("sel")}
+    c.onclick=()=>tap(x,y);b.appendChild(c);
+  }
+}
+function tap(x,y){
+  if(!state||state.winner||state.turn!==myPlayer)return;
+  const u=state.units.find(a=>a.x===x&&a.y===y);
+  if(!selected){
+    if(u&&u.p===myPlayer){selected=u.id;$("help").textContent="Unit selected. Choose an adjacent square.";render()}
+    return;
+  }
+  const su=state.units.find(a=>a.id===selected);
+  if(!su){selected=null;render();return}
+  if(u&&u.p===myPlayer){selected=u.id;render();return}
+  if(Math.abs(su.x-x)+Math.abs(su.y-y)!==1){$("help").textContent="Only adjacent squares are allowed.";return}
+  send({type:"action",unitId:selected,x,y});selected=null;
+}
+connect();
+</script></body></html>
