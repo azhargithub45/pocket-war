@@ -3,129 +3,263 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Pocket War - Frontline</title>
+<title>Pocket War 3D</title>
 <style>
-*{box-sizing:border-box}body{margin:0;background:#071015;color:#fff;font-family:Arial,sans-serif;overflow-x:hidden}
-.wrap{max-width:980px;margin:auto;padding:8px}.top{display:flex;justify-content:space-between;align-items:center}
-.logo{font-size:24px;font-weight:900;letter-spacing:2px}.sub{font-size:10px;color:#9eabb0;letter-spacing:2px}.online{font-size:13px}.dot{display:inline-block;width:9px;height:9px;background:#65d35f;border-radius:50%;margin-right:5px}
-.hud{display:grid;grid-template-columns:1fr auto 1fr;gap:7px;margin:8px 0}.card{background:#12232b;border:1px solid #38515b;border-radius:10px;padding:7px 9px}.blue{border-color:#238cff}.red{border-color:#ff4d4d;text-align:right}.small{font-size:11px;color:#aebcc1}.score{font-size:15px;font-weight:900}.turn{background:#29343a;border:1px solid #53636a;border-radius:10px;padding:8px;text-align:center;font-weight:900;min-width:115px}
-#map{position:relative;max-width:900px;margin:auto;border:3px solid #34434a;border-radius:12px;overflow:hidden;background:#27352b;box-shadow:0 8px 30px #0008}
-#board{display:grid;grid-template-columns:repeat(10,1fr);gap:0}
-.cell{position:relative;aspect-ratio:1;border:1px solid #26352d;color:#fff;padding:0;display:flex;align-items:center;justify-content:center;font-size:clamp(21px,5.2vw,40px);text-shadow:2px 3px 3px #000;background:#46643b}
-.grass{background:linear-gradient(135deg,#4b703d,#365832)}.grass2{background:linear-gradient(135deg,#587d43,#3c6336)}
-.road{background:linear-gradient(135deg,#796c52,#62583f)}.water{background:linear-gradient(135deg,#19566a,#123e50)}
-.mud{background:linear-gradient(135deg,#654d3b,#4e3d31)}.base1{box-shadow:inset 0 0 0 4px #168bff}.base2{box-shadow:inset 0 0 0 4px #ff4040}
-.cell:after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 25% 25%,#fff1,transparent 30%);opacity:.4}
-.unit{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center}.unit .icon{filter:drop-shadow(2px 3px 2px #000);line-height:1}.unit .name{font-size:8px;font-weight:900;background:#111b;padding:2px 4px;border-radius:3px;margin-top:-2px}
-.hp{position:absolute;left:7%;right:7%;bottom:4%;height:5px;background:#171a19;border-radius:5px;z-index:3}.hp i{display:block;height:100%;background:#55d45d;border-radius:5px}
-.sel{outline:3px solid #ffd23c;outline-offset:-3px;z-index:5}.move{box-shadow:inset 0 0 0 4px #42a5ff;background:#315f78!important}.attack{box-shadow:inset 0 0 0 4px #ff4b3e;background:#723e38!important}
-.flag{position:absolute;top:3px;left:4px;font-size:13px;z-index:4}.building{position:absolute;font-size:20px;opacity:.65}
-.info{margin-top:8px;background:#102129;border:1px solid #36535f;border-radius:12px;padding:9px}.actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px}.btn{border:0;border-radius:9px;padding:10px 13px;background:#176da9;color:#fff;font-weight:800}.btn.fire{background:#9d2923}
-input{background:#0e1d26;color:#fff;border:1px solid #466273;border-radius:9px;padding:10px;width:120px;text-transform:uppercase}
-#game{display:none}.win{font-size:20px;font-weight:900;text-align:center;padding:12px;background:#183c29;border:1px solid #4fa46b;border-radius:10px;margin-top:8px}
-.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:10px;color:#aab8bd;margin-top:7px}.legend span{display:flex;gap:4px;align-items:center}
-@media(max-width:480px){.logo{font-size:20px}.card{padding:6px}.score{font-size:13px}.turn{min-width:95px;padding:7px}}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#071017;font-family:Arial,sans-serif}
+#game{position:fixed;inset:0}canvas{display:block}
+#top{position:fixed;top:10px;left:10px;right:10px;display:flex;gap:8px;align-items:center;z-index:5;pointer-events:none}
+.panel{background:rgba(5,14,20,.86);border:1px solid #3b5862;border-radius:10px;color:#eaf5f7;box-shadow:0 5px 20px #0008}
+#title{padding:9px 12px;font-weight:800;letter-spacing:.8px}
+#turn{padding:9px 12px;font-weight:700}
+#status{margin-left:auto;padding:9px 12px;font-size:12px}
+#help{position:fixed;left:10px;bottom:10px;z-index:5;padding:10px 12px;font-size:12px;line-height:1.45;max-width:390px}
+#actions{position:fixed;right:10px;bottom:10px;z-index:5;display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}
+button{border:1px solid #526e78;background:#10222b;color:#fff;border-radius:8px;padding:10px 13px;font-weight:700}
+button:active{transform:translateY(1px)}button.primary{background:#075b83}
+#legend{position:fixed;top:62px;left:10px;z-index:5;padding:7px 10px;font-size:11px}
+.badge{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px}.blue{background:#28a9ff}.red{background:#ff4e54}
+#toast{position:fixed;top:105px;left:50%;transform:translateX(-50%);z-index:8;background:#08161de8;color:white;border:1px solid #5c7a84;border-radius:9px;padding:9px 13px;opacity:0;transition:.2s}
+#toast.show{opacity:1}
 </style>
 </head>
 <body>
-<div class="wrap">
-<div class="top"><div><div class="logo">POCKET WAR</div><div class="sub">FRONTLINE COMMAND</div></div><div class="online"><span class="dot"></span><b id="status">Online</b></div></div>
-
-<div id="lobby" class="info">
-  <div class="actions"><button class="btn" id="create">CREATE BATTLE</button><button class="btn" id="join">JOIN BATTLE</button><input id="code" maxlength="5" placeholder="ROOM CODE"></div>
-  <div class="small" id="msg" style="margin-top:7px">Create a battle and send the 5-character room code to Player 2.</div>
+<div id="game"></div>
+<div id="top">
+  <div id="title" class="panel">⚔ POCKET WAR 3D</div>
+  <div id="turn" class="panel">BLUE • YOUR TURN</div>
+  <div id="status" class="panel">Select a unit</div>
 </div>
-
-<div id="game">
-<div class="hud">
-<div class="card blue"><div class="small">BLUE FORCES</div><div class="score">🔵 PLAYER 1</div></div>
-<div class="turn" id="turn">WAIT</div>
-<div class="card red"><div class="small">RED FORCES</div><div class="score">PLAYER 2 🔴</div></div>
+<div id="legend" class="panel"><span class="badge blue"></span>BLUE &nbsp; <span class="badge red"></span>RED</div>
+<div id="help" class="panel">
+<b>3D controls</b><br>
+Drag = rotate camera • Pinch/wheel = zoom • Right drag = pan<br>
+Select a unit, then tap a highlighted tile to move. Tap an enemy in range to attack.
 </div>
-
-<div id="map"><div id="board"></div></div>
-<div class="legend"><span>🪖 Infantry</span><span>🚙 Recon</span><span>💥 Attack</span><span>🛡️ Base</span></div>
-
-<div class="info">
-<div><b id="roomText">BATTLE</b> · <span id="help">Select one of your units.</span></div>
-<div class="small">Move one square. Select an adjacent enemy to fire. Damage is synchronized between both players.</div>
+<div id="actions">
+  <button id="centerBtn">Center</button>
+  <button id="endBtn" class="primary">End Turn</button>
+  <button id="resetBtn">Reset</button>
 </div>
-<div id="winner"></div>
-</div>
-</div>
+<div id="toast"></div>
 
-<script>
-let ws=null,myPlayer=0,state=null,selected=null;
-const $=id=>document.getElementById(id);
-const icons={1:"🪖",2:"🚙",3:"🪖",4:"🚙"};
+<script type="module">
+import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js";
+import {OrbitControls} from "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/controls/OrbitControls.js";
 
-function connect(){
- if(ws&&(ws.readyState===0||ws.readyState===1))return;
- const proto=location.protocol==="https:"?"wss":"ws";
- ws=new WebSocket(proto+"://"+location.host);
- ws.onopen=()=>{$("status").textContent="Online"};
- ws.onclose=()=>{$("status").textContent="Offline"};
- ws.onerror=()=>{$("status").textContent="Connection error"};
- ws.onmessage=e=>{
-  const m=JSON.parse(e.data);
-  if(m.type==="error"){$("msg").textContent=m.message;return}
-  if(m.type==="created"||m.type==="joined"){
-   myPlayer=m.player;$("roomText").textContent="BATTLE "+m.code;
-   $("lobby").style.display="none";$("game").style.display="block";
-  }
-  if(m.type==="state"){state=m.state;render()}
- };
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x071017);
+scene.fog = new THREE.Fog(0x071017, 28, 58);
+
+const camera = new THREE.PerspectiveCamera(48, innerWidth/innerHeight, .1, 200);
+camera.position.set(13,16,18);
+
+const renderer = new THREE.WebGLRenderer({antialias:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.setSize(innerWidth,innerHeight);
+renderer.shadowMap.enabled=true;
+renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+document.getElementById("game").appendChild(renderer.domElement);
+
+const controls = new OrbitControls(camera,renderer.domElement);
+controls.target.set(0,0,0);
+controls.enableDamping=true;
+controls.dampingFactor=.07;
+controls.minDistance=9; controls.maxDistance=34;
+controls.maxPolarAngle=Math.PI/2.18;
+
+scene.add(new THREE.HemisphereLight(0xb9d9e7,0x1c2a16,2.0));
+const sun=new THREE.DirectionalLight(0xffffff,3.0);
+sun.position.set(-10,22,8); sun.castShadow=true;
+sun.shadow.mapSize.set(2048,2048);
+scene.add(sun);
+
+const boardSize=12, tile=2;
+const terrain=new THREE.Group(); scene.add(terrain);
+const cells=new Map(), units=[];
+let selected=null, turn="blue", gameOver=false;
+
+function key(x,z){return x+","+z}
+function world(x,z){return new THREE.Vector3((x-(boardSize-1)/2)*tile,0,(z-(boardSize-1)/2)*tile)}
+function mat(c,rough=.9){return new THREE.MeshStandardMaterial({color:c,roughness:rough})}
+
+const grass=[0x2f5e38,0x3d7040,0x456f3c,0x315b39];
+for(let z=0;z<boardSize;z++) for(let x=0;x<boardSize;x++){
+  let h=.12;
+  if((x===3&&z===3)||(x===8&&z===7)||(x===5&&z===5)) h=.5;
+  const p=world(x,z);
+  const m=new THREE.Mesh(new THREE.BoxGeometry(tile-.035,h,tile-.035),mat(grass[(x*7+z*3)%grass.length]));
+  m.position.set(p.x,h/2,p.z); m.receiveShadow=true; terrain.add(m);
+  cells.set(key(x,z),{x,z,mesh:m,blocked:false,unit:null});
 }
-function send(o){if(ws&&ws.readyState===1)ws.send(JSON.stringify(o))}
-$("create").onclick=()=>{connect();setTimeout(()=>send({type:"create"}),150)};
-$("join").onclick=()=>{let c=$("code").value.trim().toUpperCase();if(c.length!==5){$("msg").textContent="Enter the 5-character room code.";return}connect();setTimeout(()=>send({type:"join",code:c}),150)};
 
-function terrain(x,y){
- if((y===4||y===5)&&(x>0&&x<9))return "road";
- if(x===4&&y<4)return "water";
- if((x===2&&y===2)||(x===7&&y===6))return "mud";
- return (x+y)%3===0?"grass2":"grass";
-}
-function building(x,y){
- if((x===1&&y===2)||(x===8&&y===5))return "🏚️";
- if((x===5&&y===1)||(x===4&&y===8))return "🪨";
- return "";
-}
-function render(){
- const b=$("board");b.innerHTML="";
- $("turn").textContent=state.winner?"PLAYER "+state.winner+" WINS":("PLAYER "+state.turn+(state.turn===myPlayer?" · YOUR TURN":" · WAIT"));
- for(let y=0;y<10;y++)for(let x=0;x<10;x++){
-  const c=document.createElement("button");c.className="cell "+terrain(x,y);
-  if(x===0&&y===9)c.classList.add("base1");
-  if(x===9&&y===0)c.classList.add("base2");
-  const deco=building(x,y);if(deco){let d=document.createElement("span");d.className="building";d.textContent=deco;c.appendChild(d)}
-  const u=state.units.find(a=>a.x===x&&a.y===y);
-  if(selected){
-   const su=state.units.find(a=>a.id===selected);
-   if(su&&Math.abs(su.x-x)+Math.abs(su.y-y)===1)c.classList.add(u&&u.p!==myPlayer?"attack":"move");
+// water strip
+for(let z=0;z<boardSize;z++){
+  if(z===5||z===6){
+    for(let x=0;x<boardSize;x++){
+      const c=cells.get(key(x,z)); c.blocked=true;
+      const p=world(x,z);
+      const w=new THREE.Mesh(new THREE.BoxGeometry(tile-.02,.16,tile-.02),mat(0x17556b,.45));
+      w.position.set(p.x,.18,p.z); w.receiveShadow=true; terrain.add(w);
+    }
   }
-  if(u){
-   if(u.id===selected)c.classList.add("sel");
-   let wrap=document.createElement("div");wrap.className="unit";
-   let ic=document.createElement("div");ic.className="icon";ic.textContent=icons[u.id]||"🪖";
-   let nm=document.createElement("div");nm.className="name";nm.textContent=u.id%2?"INFANTRY":"RECON";
-   wrap.appendChild(ic);wrap.appendChild(nm);c.appendChild(wrap);
-   let hp=document.createElement("span");hp.className="hp";let bar=document.createElement("i");bar.style.width=Math.max(0,u.h*10)+"%";hp.appendChild(bar);c.appendChild(hp);
+}
+// bridge
+for(let x=4;x<8;x++){
+  const c=cells.get(key(x,5)); c.blocked=false;
+  const p=world(x,5);
+  const b=new THREE.Mesh(new THREE.BoxGeometry(tile-.08,.28,tile-.08),mat(0x76583c));
+  b.position.set(p.x,.3,p.z); b.castShadow=b.receiveShadow=true; terrain.add(b);
+}
+
+// rocks / trees
+function tree(x,z){
+ const c=cells.get(key(x,z)); if(!c||c.blocked)return;
+ const p=world(x,z), g=new THREE.Group(); g.position.set(p.x,0,p.z);
+ const trunk=new THREE.Mesh(new THREE.CylinderGeometry(.18,.25,.9,7),mat(0x5a3925)); trunk.position.y=.55;
+ const crown=new THREE.Mesh(new THREE.ConeGeometry(.75,1.8,8),mat(0x183d25)); crown.position.y=1.8;
+ trunk.castShadow=crown.castShadow=true; g.add(trunk,crown); terrain.add(g); c.blocked=true;
+}
+[[1,1],[2,2],[10,2],[9,9],[2,9],[10,10],[4,2],[8,9]].forEach(a=>tree(...a));
+
+function building(x,z,color=0x6f6a5c){
+ const c=cells.get(key(x,z)); if(!c||c.blocked)return;
+ const p=world(x,z), g=new THREE.Group(); g.position.set(p.x,0,p.z);
+ const body=new THREE.Mesh(new THREE.BoxGeometry(1.25,1.05,1.25),mat(color)); body.position.y=.55;
+ const roof=new THREE.Mesh(new THREE.ConeGeometry(.95,.75,4),mat(0x3b3b38)); roof.rotation.y=Math.PI/4; roof.position.y=1.45;
+ body.castShadow=roof.castShadow=true; g.add(body,roof); terrain.add(g); c.blocked=true;
+}
+building(2,4); building(9,3); building(9,8); building(3,8);
+
+function unitMesh(type,color){
+ const g=new THREE.Group();
+ const main=mat(color), dark=mat(color===0x1596e8?0x083c62:0x6d161b);
+ if(type==="tank"){
+   const hull=new THREE.Mesh(new THREE.BoxGeometry(1.15,.45,.9),main); hull.position.y=.55;
+   const turret=new THREE.Mesh(new THREE.CylinderGeometry(.42,.42,.25,12),main); turret.position.y=.88;
+   const barrel=new THREE.Mesh(new THREE.CylinderGeometry(.09,.09,.85,10),dark); barrel.rotation.z=Math.PI/2; barrel.position.set(.43, .91, 0);
+   g.add(hull,turret,barrel);
+ }else{
+   const body=new THREE.Mesh(new THREE.CylinderGeometry(.32,.38,.7,8),main); body.position.y=.65;
+   const head=new THREE.Mesh(new THREE.SphereGeometry(.28,12,8),dark); head.position.y=1.13;
+   const pack=new THREE.Mesh(new THREE.BoxGeometry(.38,.45,.18),dark); pack.position.set(0,.7,-.28);
+   g.add(body,head,pack);
+ }
+ g.traverse(o=>{if(o.isMesh)o.castShadow=true}); return g;
+}
+
+function addUnit(team,type,x,z,hp=100){
+ const c=cells.get(key(x,z)); if(!c||c.blocked||c.unit)return;
+ const g=unitMesh(type,team==="blue"?0x1596e8:0xd52b35);
+ const p=world(x,z); g.position.set(p.x,0,p.z);
+ scene.add(g);
+ const u={team,type,x,z,hp,maxHp:hp,mesh:g,acted:false};
+ units.push(u); c.unit=u; addHealthBar(u); return u;
+}
+function addHealthBar(u){
+ const group=new THREE.Group(); group.position.y=1.65;
+ const bg=new THREE.Mesh(new THREE.PlaneGeometry(1.05,.13),mat(0x111111)); bg.position.z=.02;
+ const fg=new THREE.Mesh(new THREE.PlaneGeometry(1,.09),mat(0x27d66d)); fg.position.z=0;
+ group.add(bg,fg); u.bar=fg; u.mesh.add(group);
+ group.lookAt(camera.position);
+}
+function updateBar(u){u.bar.scale.x=Math.max(0,u.hp/u.maxHp); u.bar.position.x=(u.hp/u.maxHp-1)*.5}
+function clearHighlights(){
+ scene.traverse(o=>{if(o.userData.hl){o.material.emissive?.setHex(0); o.userData.hl=false}})
+}
+function highlight(u){
+ clearHighlights();
+ for(let z=0;z<boardSize;z++)for(let x=0;x<boardSize;x++){
+  const d=Math.abs(x-u.x)+Math.abs(z-u.z), c=cells.get(key(x,z));
+  if(d<=2 && d>0 && !c.blocked && !c.unit){
+   c.mesh.material.emissive=new THREE.Color(0x244e20); c.mesh.material.emissiveIntensity=.8; c.mesh.userData.hl=true;
   }
-  c.onclick=()=>tap(x,y);b.appendChild(c);
  }
 }
-function tap(x,y){
- if(!state||state.winner||state.turn!==myPlayer)return;
- const u=state.units.find(a=>a.x===x&&a.y===y);
- if(!selected){if(u&&u.p===myPlayer){selected=u.id;$("help").textContent="Move or fire at an adjacent enemy.";render()}return}
- const su=state.units.find(a=>a.id===selected);
- if(!su){selected=null;render();return}
- if(u&&u.p===myPlayer){selected=u.id;render();return}
- if(Math.abs(su.x-x)+Math.abs(su.y-y)!==1){$("help").textContent="Only adjacent highlighted squares are available.";return}
- send({type:"action",unitId:selected,x,y});selected=null;
+function select(u){
+ if(gameOver)return;
+ if(u.team!==turn){toast("It's "+turn.toUpperCase()+" turn");return}
+ selected=u; highlight(u);
+ document.getElementById("status").textContent=`${u.type.toUpperCase()} • HP ${u.hp}/${u.maxHp} • ${u.acted?"ACTED":"READY"}`;
 }
-connect();
+function move(u,c){
+ if(u.acted)return toast("Unit already acted");
+ const d=Math.abs(c.x-u.x)+Math.abs(c.z-u.z); if(d>2)return;
+ cells.get(key(u.x,u.z)).unit=null; c.unit=u;
+ u.x=c.x;u.z=c.z;u.acted=true;
+ const p=world(u.x,u.z);
+ new TWEEN.Tween(u.mesh.position).to({x:p.x,z:p.z},350).easing(TWEEN.Easing.Quadratic.Out).start();
+ toast("Moved"); selected=null; clearHighlights(); updateStatus();
+}
+function attack(u,target){
+ if(u.acted)return;
+ const d=Math.abs(u.x-target.x)+Math.abs(u.z-target.z); if(d>2)return toast("Out of range");
+ u.acted=true; target.hp-=u.type==="tank"?45:30; updateBar(target);
+ flash(target.mesh);
+ if(target.hp<=0){
+   cells.get(key(target.x,target.z)).unit=null;
+   scene.remove(target.mesh); units.splice(units.indexOf(target),1);
+   toast("Enemy unit destroyed!");
+   if(!units.some(v=>v.team!==u.team)){gameOver=true;toast("🏆 "+u.team.toUpperCase()+" WINS!")}
+ }else toast("Hit! Enemy HP "+target.hp);
+ selected=null; clearHighlights(); updateStatus();
+}
+function flash(mesh){
+ mesh.traverse(o=>{if(o.isMesh){const old=o.material.emissive?.getHex(); if(o.material.emissive){o.material.emissive.setHex(0xff6600);setTimeout(()=>o.material.emissive.setHex(old||0),180)}}})
+}
+function updateStatus(){
+ document.getElementById("turn").textContent=turn.toUpperCase()+" • YOUR TURN";
+ document.getElementById("status").textContent=selected?`${selected.type.toUpperCase()} • HP ${selected.hp}/${selected.maxHp}`:"Select a unit";
+}
+function endTurn(){
+ if(gameOver)return;
+ units.filter(u=>u.team===turn).forEach(u=>u.acted=false);
+ turn=turn==="blue"?"red":"blue"; selected=null; clearHighlights(); updateStatus();
+ if(turn==="red") setTimeout(aiTurn,450);
+}
+function aiTurn(){
+ const reds=units.filter(u=>u.team==="red"), blues=units.filter(u=>u.team==="blue");
+ for(const r of reds){
+  let target=blues.find(b=>Math.abs(b.x-r.x)+Math.abs(b.z-r.z)<=2);
+  if(target){target.hp-=r.type==="tank"?35:20;updateBar(target);flash(target.mesh);if(target.hp<=0){cells.get(key(target.x,target.z)).unit=null;scene.remove(target.mesh);units.splice(units.indexOf(target),1)}}
+ }
+ turn="blue"; units.filter(u=>u.team==="blue").forEach(u=>u.acted=false); updateStatus();
+ if(!units.some(u=>u.team==="red")){gameOver=true;toast("🏆 BLUE WINS!")}
+}
+function toast(s){const e=document.getElementById("toast");e.textContent=s;e.classList.add("show");clearTimeout(window.tt);window.tt=setTimeout(()=>e.classList.remove("show"),1300)}
+
+const ray=new THREE.Raycaster(), mouse=new THREE.Vector2();
+renderer.domElement.addEventListener("pointerdown",e=>{
+ if(e.button!==0)return;
+ mouse.x=(e.clientX/innerWidth)*2-1; mouse.y=-(e.clientY/innerHeight)*2+1;
+ ray.setFromCamera(mouse,camera);
+ const hits=ray.intersectObjects(scene.children,true);
+ for(const h of hits){
+  let o=h.object; while(o.parent && !o.userData.unit)o=o.parent;
+  const u=units.find(v=>v.mesh===o);
+  if(u){ if(u.team===turn)select(u); else if(selected)attack(selected,u); return; }
+  const cell=[...cells.values()].find(c=>c.mesh===h.object);
+  if(cell && selected){move(selected,cell);return}
+ }
+});
+
+const TWEEN={Easing:{Quadratic:{Out:t=>1-Math.pow(1-t,2)}},_a:[]};
+TWEEN.Tween=class{constructor(o){this.o=o;this.startVals={};this.end={};this.d=300;this.s=performance.now()}
+to(v,d){this.end=v;this.d=d;for(const k in v)this.startVals[k]=this.o[k];TWEEN._a.push(this);return this}
+easing(f){this.ease=f;return this}
+start(){this.s=performance.now();return this}};
+function animateTweens(){
+ const now=performance.now();
+ TWEEN._a=TWEEN._a.filter(t=>{const p=Math.min(1,(now-t.s)/t.d),e=t.ease?t.ease(p):p;for(const k in t.end)t.o[k]=t.startVals[k]+(t.end[k]-t.startVals[k])*e;return p<1})
+}
+addUnit("blue","infantry",1,10); addUnit("blue","tank",2,10); addUnit("blue","infantry",1,9);
+addUnit("red","infantry",10,1); addUnit("red","tank",9,1); addUnit("red","infantry",10,2);
+
+document.getElementById("endBtn").onclick=endTurn;
+document.getElementById("resetBtn").onclick=()=>location.reload();
+document.getElementById("centerBtn").onclick=()=>{camera.position.set(13,16,18);controls.target.set(0,0,0);controls.update()};
+addEventListener("resize",()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
+function loop(){requestAnimationFrame(loop);animateTweens();controls.update();renderer.render(scene,camera)}
+loop();
 </script>
 </body>
 </html>
